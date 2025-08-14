@@ -74,19 +74,20 @@ const OrderSection = () => {
   return (
     <section 
       id="order" 
-      className="section-padding bg-background"
+      className="min-h-screen bg-background"
     >
-      <div className="container-width">
+      <div className="container-width py-16">
         <div className="text-center mb-16">
           <h2 className="text-headline text-primary mb-4">Order Your Curtain Luxe</h2>
           <p className="text-body text-muted-foreground">
             Configure your perfect smart curtain solution with transparent pricing.
           </p>
         </div>
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Left: Product Images */}
-          <div className="flex flex-col justify-center">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden shadow-medium">
+        
+        <div className="grid lg:grid-cols-2 gap-12 min-h-[80vh]">
+          {/* Left: Sticky Product Images */}
+          <div className="lg:sticky lg:top-20 lg:h-fit flex flex-col justify-center">
+            <div className="aspect-[4/3] rounded-lg overflow-hidden shadow-medium transition-all duration-500">
               <img 
                 src={
                   form.curtainType === 'sliding' ? slidingImage :
@@ -98,13 +99,20 @@ const OrderSection = () => {
                   form.curtainType === 'roller' ? 'Roller curtain system' :
                   'Select curtain type'
                 }
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover transition-opacity duration-300" 
               />
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                {form.curtainType === 'sliding' ? 'Smooth • Silent • Precise' :
+                 form.curtainType === 'roller' ? 'Minimal • Max Control' :
+                 'Select your curtain type above'}
+              </p>
             </div>
           </div>
 
-          {/* Right: Form */}
-          <div>
+          {/* Right: Scrollable Form */}
+          <div className="lg:overflow-y-auto lg:max-h-[80vh] lg:pr-4">
             <Card className="p-6 space-y-6">
               {/* Curtain Type */}
               <div className="space-y-3">
@@ -392,7 +400,7 @@ const OrderSection = () => {
               </div>
 
               {/* Price Summary */}
-              {pricing.total > 0 && (
+              {typeof pricing === 'object' && pricing.total > 0 && (
                 <Card className="p-4 bg-surface">
                   <h4 className="font-semibold mb-3">Price Breakdown</h4>
                   <div className="space-y-2 text-sm">
