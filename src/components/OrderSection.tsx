@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -40,10 +39,6 @@ const OrderSection = () => {
   });
   
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-  const formScrollRef = useRef<HTMLDivElement>(null);
 
   const prices = {
     sliding: { wifi: 15000, zigbee: 13000 },
@@ -76,89 +71,22 @@ const OrderSection = () => {
   const isFormValid = form.curtainType && form.motorType && form.height && form.width && 
                      form.installation && form.name && form.phone && form.address && form.payment;
 
-  const handleScroll = useCallback(() => {
-    if (!sectionRef.current || !formScrollRef.current) return;
-    
-    const section = sectionRef.current;
-    const rect = section.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    
-    const shouldLock = rect.top <= 0 && rect.bottom >= windowHeight;
-    
-    if (shouldLock !== isLocked) {
-      setIsLocked(shouldLock);
-      document.body.style.overflow = shouldLock ? 'hidden' : 'auto';
-    }
-  }, [isLocked]);
-
-  const handleWheel = useCallback((e: WheelEvent) => {
-    if (!isLocked || !formScrollRef.current || !sectionRef.current) return;
-    
-    const formScroll = formScrollRef.current;
-    const section = sectionRef.current;
-    const rect = section.getBoundingClientRect();
-    const delta = e.deltaY;
-    const formScrollTop = formScroll.scrollTop;
-    const formScrollHeight = formScroll.scrollHeight - formScroll.clientHeight;
-    
-    const atTop = formScrollTop <= 1;
-    const atBottom = formScrollTop >= formScrollHeight - 1;
-    const scrollingUp = delta < 0;
-    const scrollingDown = delta > 0;
-    
-    if ((atTop && scrollingUp) || (atBottom && scrollingDown)) {
-      setIsLocked(false);
-      document.body.style.overflow = 'auto';
-      return;
-    }
-    
-    e.preventDefault();
-    requestAnimationFrame(() => {
-      formScroll.scrollTop += delta * 0.8;
-    });
-  }, [isLocked]);
-
-  useEffect(() => {
-    let ticking = false;
-    
-    const throttledScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    
-    return () => {
-      window.removeEventListener('scroll', throttledScroll);
-      window.removeEventListener('wheel', handleWheel);
-      document.body.style.overflow = 'auto';
-    };
-  }, [handleScroll, handleWheel]);
-
   return (
     <section 
-      ref={sectionRef}
       id="order" 
-      className="relative min-h-screen bg-background"
-      style={{ position: isLocked ? 'fixed' : 'relative', top: isLocked ? 0 : 'auto', width: '100%', zIndex: isLocked ? 10 : 'auto' }}
+      className="section-padding bg-background"
     >
-      <div className="container-width h-full">
-        <div className="text-center py-16">
+      <div className="container-width">
+        <div className="text-center mb-16">
           <h2 className="text-headline text-primary mb-4">Order Your Curtain Luxe</h2>
           <p className="text-body text-muted-foreground">
             Configure your perfect smart curtain solution with transparent pricing.
           </p>
         </div>
-        <div className="grid lg:grid-cols-2 gap-8 h-full">
-          {/* Left: Product Images - Locked Panel */}
-          <div className="sticky top-16 h-screen flex flex-col justify-center p-8">
-            <div className="w-full rounded-lg overflow-hidden">
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Left: Product Images */}
+          <div className="flex flex-col justify-center">
+            <div className="aspect-[4/3] rounded-lg overflow-hidden shadow-medium">
               <img 
                 src={
                   form.curtainType === 'sliding' ? slidingImage :
@@ -175,16 +103,8 @@ const OrderSection = () => {
             </div>
           </div>
 
-          {/* Right: Form - Sticky/Scrollable */}
-          <div 
-            ref={formRef}
-            className="sticky top-16 h-screen p-8"
-          >
-            <div 
-              ref={formScrollRef}
-              className="h-full overflow-y-auto scrollbar-hide"
-              style={{ scrollBehavior: 'smooth' }}
-            >
+          {/* Right: Form */}
+          <div>
             <Card className="p-6 space-y-6">
               {/* Curtain Type */}
               <div className="space-y-3">
@@ -566,7 +486,6 @@ const OrderSection = () => {
                 </Card>
               )}
             </Card>
-            </div>
           </div>
         </div>
       </div>
