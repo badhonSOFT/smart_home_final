@@ -39,37 +39,6 @@ const OrderSection = () => {
   });
   
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isImageFixed, setIsImageFixed] = useState(false);
-  
-  const sectionRef = useRef<HTMLElement>(null);
-  const leftPanelRef = useRef<HTMLDivElement>(null);
-  const rightPanelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current || !leftPanelRef.current || !rightPanelRef.current) return;
-
-      const sectionRect = sectionRef.current.getBoundingClientRect();
-      const rightPanelRect = rightPanelRef.current.getBoundingClientRect();
-      const navbarHeight = 80; // Assuming navbar is 80px
-      const offset = 20; // Additional offset from navbar
-
-      // Check if section is in view and left panel would hit navbar
-      const shouldBeFixed = sectionRect.top <= navbarHeight + offset && 
-                           sectionRect.bottom > window.innerHeight;
-
-      // Check if right panel has finished scrolling (reached bottom of section)
-      const rightPanelFinishedScrolling = rightPanelRect.bottom <= window.innerHeight;
-
-      // Fix the image when it approaches navbar, but unlock when right panel finishes
-      setIsImageFixed(shouldBeFixed && !rightPanelFinishedScrolling);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Check initial state
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const prices = {
     sliding: { wifi: 15000, zigbee: 13000 },
@@ -104,11 +73,10 @@ const OrderSection = () => {
 
   return (
     <section 
-      ref={sectionRef}
       id="order" 
-      className="min-h-screen bg-background relative"
+      className="min-h-screen bg-background py-16"
     >
-      <div className="container-width py-16">
+      <div className="container-width">
         <div className="text-center mb-16">
           <h2 className="text-headline text-primary mb-4">Order Your Curtain Luxe</h2>
           <p className="text-body text-muted-foreground">
@@ -116,20 +84,9 @@ const OrderSection = () => {
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-12 min-h-[80vh]">
-          {/* Left: Smart Sticky Product Images */}
-          <div 
-            ref={leftPanelRef}
-            className={`transition-all duration-300 ${
-              isImageFixed 
-                ? 'fixed top-24 left-0 w-[calc(50%-1.5rem)] z-10' 
-                : 'lg:sticky lg:top-20 lg:h-fit'
-            } flex flex-col justify-center`}
-            style={isImageFixed ? { 
-              left: `calc((100vw - min(1200px, 100vw - 4rem)) / 2)`,
-              width: `calc((min(1200px, 100vw - 4rem) / 2) - 1.5rem)`
-            } : {}}
-          >
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Left: Sticky Product Images */}
+          <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="aspect-[4/3] rounded-lg overflow-hidden shadow-medium transition-all duration-500">
               <img 
                 src={
@@ -154,13 +111,8 @@ const OrderSection = () => {
             </div>
           </div>
 
-          {/* Right: Scrollable Form */}
-          <div 
-            ref={rightPanelRef}
-            className={`transition-all duration-300 ${
-              isImageFixed ? 'lg:ml-auto lg:w-full' : ''
-            } lg:overflow-y-auto lg:max-h-[80vh] lg:pr-4`}
-          >
+          {/* Right: Form */}
+          <div className="space-y-6">
             <Card className="p-6 space-y-6">
               {/* Curtain Type */}
               <div className="space-y-3">
