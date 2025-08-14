@@ -19,7 +19,7 @@ const InteractiveDemoSection = () => {
     // Reset animation state after animation completes
     setTimeout(() => {
       setIsAnimating(false);
-    }, 2000);
+    }, curtainType === 'roller' ? 8000 : 6000);
   };
 
   return (
@@ -28,6 +28,18 @@ const InteractiveDemoSection = () => {
         @keyframes shimmer {
           0%, 100% { transform: translateX(-100%); opacity: 0; }
           50% { transform: translateX(100%); opacity: 1; }
+        }
+        .roller-curtain-slow {
+          transition: all 8s ease-in-out;
+        }
+        .roller-curtain-mobile-slow {
+          transition: all 8s ease-in-out;
+        }
+        .sliding-curtain-slow {
+          transition: all 6s ease-in-out;
+        }
+        .sliding-curtain-mobile-slow {
+          transition: all 0.4s ease-in-out;
         }
       `}</style>
       <section className="section-padding bg-background">
@@ -58,10 +70,10 @@ const InteractiveDemoSection = () => {
                     <>
                       {/* Left Curtain Panel */}
                       <div 
-                        className={`absolute top-8 left-8 transition-all duration-2000 ease-in-out ${
-                          curtainOpen ? 'w-4 h-full' : 'w-1/2 h-full'
-                        }`}
+                        className={`absolute top-2 sliding-curtain-slow h-full`}
                         style={{
+                          left: '8px',
+                          width: curtainOpen ? '4px' : 'calc(50% - 8px)',
                           background: 'linear-gradient(90deg, #0A1D3A 0%, #0E2A52 10%, #1A3B6B 25%, #2A4F7F 40%, #1A3B6B 60%, #0E2A52 80%, #0A1D3A 100%)',
                           boxShadow: 'inset -6px 0 20px rgba(0,0,0,0.4), 8px 0 15px rgba(0,0,0,0.3), inset 3px 0 10px rgba(255,255,255,0.15)',
                           borderRadius: '0 8px 8px 0'
@@ -120,10 +132,10 @@ const InteractiveDemoSection = () => {
 
                       {/* Right Curtain Panel */}
                       <div 
-                        className={`absolute top-8 right-8 transition-all duration-2000 ease-in-out ${
-                          curtainOpen ? 'w-4 h-full' : 'w-1/2 h-full'
-                        }`}
+                        className={`absolute top-2 sliding-curtain-slow h-full`}
                         style={{
+                          right: '8px',
+                          width: curtainOpen ? '4px' : 'calc(50% - 8px)',
                           background: 'linear-gradient(-90deg, #0A1D3A 0%, #0E2A52 10%, #1A3B6B 25%, #2A4F7F 40%, #1A3B6B 60%, #0E2A52 80%, #0A1D3A 100%)',
                           boxShadow: 'inset 6px 0 20px rgba(0,0,0,0.4), -8px 0 15px rgba(0,0,0,0.3), inset -3px 0 10px rgba(255,255,255,0.15)',
                           borderRadius: '8px 0 0 8px'
@@ -181,7 +193,7 @@ const InteractiveDemoSection = () => {
                       </div>
 
                       {/* Curtain Track */}
-                      <div className="absolute top-8 left-8 right-8 h-3 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-md">
+                      <div className="absolute top-2 left-2 right-2 h-3 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-md">
                         <div className="absolute inset-0 bg-gradient-to-b from-gray-400 to-gray-700 rounded-full" />
                         <div className="absolute top-0.5 left-1 right-1 h-1 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full" />
                       </div>
@@ -190,7 +202,7 @@ const InteractiveDemoSection = () => {
                     <>
                       {/* Roller Curtain */}
                       <div 
-                        className={`absolute top-8 left-8 right-8 transition-all duration-2000 ease-in-out ${
+                        className={`absolute top-2 left-2 right-2 roller-curtain-slow ${
                           curtainOpen ? 'h-6' : 'h-full'
                         }`}
                         style={{
@@ -250,7 +262,7 @@ const InteractiveDemoSection = () => {
                       </div>
 
                       {/* Roller Track/Tube */}
-                      <div className="absolute top-8 left-8 right-8 h-6 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg">
+                      <div className="absolute top-2 left-2 right-2 h-6 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full shadow-lg">
                         <div className="absolute inset-0 bg-gradient-to-b from-gray-400 to-gray-700 rounded-full" />
                         <div className="absolute top-1 left-2 right-2 h-2 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full" />
                         <div className="absolute top-3 left-2 right-2 h-1 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full" />
@@ -318,82 +330,46 @@ const InteractiveDemoSection = () => {
 
                     {/* Curtain Visual */}
                     <div className="flex flex-col items-center justify-center mb-4">
-                      <div className="relative w-32 h-32 bg-gradient-to-br from-white/15 to-white/5 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
+                      <div className="relative w-48 h-40 rounded-2xl border border-white/20 shadow-2xl">
                         {/* Frame effect */}
-                        <div className="absolute inset-2 rounded-2xl bg-transparent overflow-hidden">
+                        <div className="absolute inset-1 bg-transparent overflow-hidden">
                           {/* Realistic curtain animation */}
                           {curtainType === 'sliding' ? (
                             <>
                               {/* Left curtain panel */}
                               <div 
-                                className={`absolute top-0 left-0 h-full transition-all duration-2000 ease-in-out ${
-                                  curtainOpen ? 'w-1' : 'w-1/2'
-                                }`}
+                                className={`absolute top-0 left-0 h-full sliding-curtain-mobile-slow`}
                                 style={{
-                                  background: 'linear-gradient(90deg, #0A1D3A 0%, #0C2347 20%, #0E2A52 50%, #0C2347 80%, #0A1D3A 100%)',
-                                  boxShadow: 'inset -2px 0 6px rgba(0,0,0,0.3), 2px 0 4px rgba(0,0,0,0.2), inset 1px 0 3px rgba(255,255,255,0.1)'
+                                  width: curtainOpen ? '2px' : 'calc(50% - 1px)',
+                                  background: 'transparent'
                                 }}
                               >
-                                {/* Fabric folds */}
-                                <div className="absolute inset-0">
-                                  {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className="absolute h-full opacity-40" style={{ 
-                                      left: `${(i + 1) * 16}%`,
-                                      width: '1px',
-                                      background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.3) 50%, rgba(255,255,255,0.1) 100%)'
-                                    }} />
-                                  ))}
-                                </div>
                               </div>
                               
                               {/* Right curtain panel */}
                               <div 
-                                className={`absolute top-0 right-0 h-full transition-all duration-2000 ease-in-out ${
-                                  curtainOpen ? 'w-1' : 'w-1/2'
-                                }`}
+                                className={`absolute top-0 right-0 h-full sliding-curtain-mobile-slow`}
                                 style={{
-                                  background: 'linear-gradient(-90deg, #0A1D3A 0%, #0C2347 20%, #0E2A52 50%, #0C2347 80%, #0A1D3A 100%)',
-                                  boxShadow: 'inset 2px 0 6px rgba(0,0,0,0.3), -2px 0 4px rgba(0,0,0,0.2), inset -1px 0 3px rgba(255,255,255,0.1)'
+                                  width: curtainOpen ? '2px' : 'calc(50% - 1px)',
+                                  background: 'transparent'
                                 }}
                               >
-                                {/* Fabric folds */}
-                                <div className="absolute inset-0">
-                                  {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className="absolute h-full opacity-40" style={{ 
-                                      right: `${(i + 1) * 16}%`,
-                                      width: '1px',
-                                      background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.3) 50%, rgba(255,255,255,0.1) 100%)'
-                                    }} />
-                                  ))}
-                                </div>
                               </div>
                             </>
                           ) : (
                             /* Roller curtain */
                             <div 
-                              className={`absolute top-0 left-0 right-0 transition-all duration-2000 ease-in-out ${
-                                curtainOpen ? 'h-2' : 'h-full'
-                              }`}
+                              className={`absolute top-0 left-0 right-0 roller-curtain-mobile-slow`}
                               style={{
-                                background: 'linear-gradient(180deg, #0A1D3A 0%, #0C2347 25%, #0E2A52 50%, #0C2347 75%, #0A1D3A 100%)',
-                                boxShadow: '0 3px 8px rgba(0,0,0,0.2), inset 0 1px 4px rgba(255,255,255,0.1), inset 0 -1px 4px rgba(0,0,0,0.2)'
+                                height: curtainOpen ? '4px' : '100%',
+                                background: 'transparent'
                               }}
                             >
-                              {/* Fabric texture */}
-                              <div className="absolute inset-0">
-                                {Array.from({ length: 15 }).map((_, i) => (
-                                  <div key={i} className="absolute h-full opacity-30" style={{ 
-                                    left: `${(i + 1) * 6.67}%`,
-                                    width: '1px',
-                                    background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 50%, rgba(255,255,255,0.1) 100%)'
-                                  }} />
-                                ))}
-                              </div>
                             </div>
                           )}
                           
                           {/* Curtain track */}
-                          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 shadow-md" />
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 shadow-md" />
                         </div>
                       </div>
                       
