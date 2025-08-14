@@ -39,6 +39,18 @@ const OrderSection = () => {
   });
   
   const [showSuccess, setShowSuccess] = useState(false);
+  const motorTypeRef = useRef<HTMLDivElement>(null);
+  const sizeRef = useRef<HTMLDivElement>(null);
+  const installationRef = useRef<HTMLDivElement>(null);
+  const deliveryRef = useRef<HTMLDivElement>(null);
+  const paymentRef = useRef<HTMLDivElement>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+
+  const scrollToNext = (ref: React.RefObject<HTMLDivElement>) => {
+    setTimeout(() => {
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
 
   const prices = {
     sliding: { wifi: 15000, zigbee: 13000 },
@@ -116,41 +128,47 @@ const OrderSection = () => {
             <Card className="p-6 space-y-6">
               {/* Curtain Type */}
               <div className="space-y-3">
-                <Label>Curtain Type</Label>
+                <Label>1. Curtain Type</Label>
                 <div className="space-y-3">
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.curtainType === 'sliding' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, curtainType: 'sliding' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, curtainType: 'sliding' }));
+                      scrollToNext(motorTypeRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-5 h-3 bg-black rounded-sm"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.curtainType === 'sliding' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Sliding</h4>
-                        <p className="text-xs text-gray-500">Smooth horizontal motion</p>
+                        <h4 className={`font-semibold text-sm ${form.curtainType === 'sliding' ? 'text-white' : 'text-gray-900'}`}>Sliding</h4>
+                        <p className={`text-xs ${form.curtainType === 'sliding' ? 'text-gray-300' : 'text-gray-500'}`}>Smooth horizontal motion</p>
                       </div>
                     </div>
                   </Card>
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.curtainType === 'roller' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, curtainType: 'roller' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, curtainType: 'roller' }));
+                      scrollToNext(motorTypeRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-5 h-3 bg-black rounded-full"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.curtainType === 'roller' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Roller</h4>
-                        <p className="text-xs text-gray-500">Vertical roll mechanism</p>
+                        <h4 className={`font-semibold text-sm ${form.curtainType === 'roller' ? 'text-white' : 'text-gray-900'}`}>Roller</h4>
+                        <p className={`text-xs ${form.curtainType === 'roller' ? 'text-gray-300' : 'text-gray-500'}`}>Vertical roll mechanism</p>
                       </div>
                     </div>
                   </Card>
@@ -158,42 +176,48 @@ const OrderSection = () => {
               </div>
 
               {/* Motor Type */}
-              <div className={`space-y-3 ${!form.curtainType ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>Motor Type</Label>
+              <div ref={motorTypeRef} className={`space-y-3 ${!form.curtainType ? 'opacity-50 pointer-events-none' : ''}`}>
+                <Label>2. Motor Type</Label>
                 <div className="space-y-3">
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.motorType === 'wifi' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, motorType: 'wifi' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, motorType: 'wifi' }));
+                      scrollToNext(sizeRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-4 h-4 border-2 border-black rounded-full"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.motorType === 'wifi' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Wi-Fi</h4>
-                        <p className="text-xs text-gray-500">Direct internet connection</p>
+                        <h4 className={`font-semibold text-sm ${form.motorType === 'wifi' ? 'text-white' : 'text-gray-900'}`}>Wi-Fi</h4>
+                        <p className={`text-xs ${form.motorType === 'wifi' ? 'text-gray-300' : 'text-gray-500'}`}>Direct internet connection</p>
                       </div>
                     </div>
                   </Card>
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.motorType === 'zigbee' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, motorType: 'zigbee' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, motorType: 'zigbee' }));
+                      scrollToNext(sizeRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-4 h-4 border-2 border-black rounded-sm"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.motorType === 'zigbee' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Zigbee</h4>
-                        <p className="text-xs text-gray-500">Mesh network protocol</p>
+                        <h4 className={`font-semibold text-sm ${form.motorType === 'zigbee' ? 'text-white' : 'text-gray-900'}`}>Zigbee</h4>
+                        <p className={`text-xs ${form.motorType === 'zigbee' ? 'text-gray-300' : 'text-gray-500'}`}>Mesh network protocol</p>
                       </div>
                     </div>
                   </Card>
@@ -209,64 +233,79 @@ const OrderSection = () => {
               </div>
 
               {/* Size */}
-              <div className={`grid grid-cols-2 gap-4 ${!form.motorType ? 'opacity-50 pointer-events-none' : ''}`}>
-                <div className="space-y-2">
-                  <Label>Height (ft)</Label>
+              <div ref={sizeRef} className={`space-y-4 ${!form.motorType ? 'opacity-50 pointer-events-none' : ''}`}>
+                <Label>3. Size</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Height (ft)</Label>
                   <Input 
                     type="number" 
-                    placeholder="8"
+                    placeholder="0"
                     value={form.height}
-                    onChange={(e) => setForm(prev => ({ ...prev, height: e.target.value }))}
+                    onChange={(e) => {
+                      setForm(prev => ({ ...prev, height: e.target.value }));
+                      if (e.target.value && form.width) scrollToNext(installationRef);
+                    }}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Width (ft)</Label>
-                  <Input 
-                    type="number" 
-                    placeholder="10"
-                    value={form.width}
-                    onChange={(e) => setForm(prev => ({ ...prev, width: e.target.value }))}
-                  />
+                  <div className="space-y-2">
+                    <Label>Width (ft)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="0"
+                      value={form.width}
+                      onChange={(e) => {
+                        setForm(prev => ({ ...prev, width: e.target.value }));
+                        if (e.target.value && form.height) scrollToNext(installationRef);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Installation */}
-              <div className={`space-y-3 ${!form.height || !form.width ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>Installation</Label>
+              <div ref={installationRef} className={`space-y-3 ${!form.height || !form.width ? 'opacity-50 pointer-events-none' : ''}`}>
+                <Label>4. Installation</Label>
                 <div className="space-y-3">
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.installation === 'self' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, installation: 'self' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, installation: 'self' }));
+                      scrollToNext(deliveryRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-4 h-4 border-2 border-black rounded-full"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.installation === 'self' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Self Install</h4>
-                        <p className="text-xs text-gray-500">DIY with guide</p>
+                        <h4 className={`font-semibold text-sm ${form.installation === 'self' ? 'text-white' : 'text-gray-900'}`}>Self Install</h4>
+                        <p className={`text-xs ${form.installation === 'self' ? 'text-gray-300' : 'text-gray-500'}`}>DIY with guide</p>
                       </div>
                     </div>
                   </Card>
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.installation === 'sohub' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, installation: 'sohub' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, installation: 'sohub' }));
+                      scrollToNext(deliveryRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <div className="w-4 h-4 border-2 border-black rounded-sm"></div>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.installation === 'sohub' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">SOHUB Install</h4>
-                        <p className="text-xs text-gray-500">+৳2,000</p>
+                        <h4 className={`font-semibold text-sm ${form.installation === 'sohub' ? 'text-white' : 'text-gray-900'}`}>SOHUB Install</h4>
+                        <p className={`text-xs ${form.installation === 'sohub' ? 'text-gray-300' : 'text-gray-500'}`}>+৳2,000</p>
                       </div>
                     </div>
                   </Card>
@@ -275,7 +314,7 @@ const OrderSection = () => {
 
               {/* Remote Setup */}
               <div className={`flex items-center justify-between ${!form.installation ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>Remote Setup (+৳1,000)</Label>
+                <Label>5. Remote Setup (+৳1,000)</Label>
                 <Switch 
                   checked={form.remoteSetup}
                   onCheckedChange={(checked) => setForm(prev => ({ ...prev, remoteSetup: checked }))}
@@ -285,8 +324,8 @@ const OrderSection = () => {
               <Separator />
 
               {/* Delivery Details */}
-              <div className={`space-y-4 ${!form.installation ? 'opacity-50 pointer-events-none' : ''}`}>
-                <h3 className="font-semibold">Delivery Details</h3>
+              <div ref={deliveryRef} className={`space-y-4 ${!form.installation ? 'opacity-50 pointer-events-none' : ''}`}>
+                <h3 className="font-semibold">6. Delivery Details</h3>
                 <div className="space-y-2">
                   <Label>Full Name</Label>
                   <Input 
@@ -308,47 +347,56 @@ const OrderSection = () => {
                   <Input 
                     placeholder="Complete delivery address"
                     value={form.address}
-                    onChange={(e) => setForm(prev => ({ ...prev, address: e.target.value }))}
+                    onChange={(e) => {
+                      setForm(prev => ({ ...prev, address: e.target.value }));
+                      if (e.target.value && form.name && form.phone) scrollToNext(paymentRef);
+                    }}
                   />
                 </div>
               </div>
 
               {/* Payment */}
-              <div className={`space-y-3 ${!form.name || !form.phone || !form.address ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>Payment Option</Label>
+              <div ref={paymentRef} className={`space-y-3 ${!form.name || !form.phone || !form.address ? 'opacity-50 pointer-events-none' : ''}`}>
+                <Label>7. Payment Option</Label>
                 <div className="space-y-3">
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.payment === '10' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, payment: '10' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, payment: '10' }));
+                      scrollToNext(confirmButtonRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-black font-bold text-xs">10%</span>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.payment === '10' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Advance</h4>
-                        <p className="text-xs text-gray-500">Pay 10% now</p>
+                        <h4 className={`font-semibold text-sm ${form.payment === '10' ? 'text-white' : 'text-gray-900'}`}>Advance</h4>
+                        <p className={`text-xs ${form.payment === '10' ? 'text-gray-300' : 'text-gray-500'}`}>Pay 10% now</p>
                       </div>
                     </div>
                   </Card>
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg relative ${
                       form.payment === '100' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, payment: '100' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, payment: '100' }));
+                      scrollToNext(confirmButtonRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-black font-bold text-xs">100%</span>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.payment === '100' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Full Payment</h4>
+                        <h4 className={`font-semibold text-sm ${form.payment === '100' ? 'text-white' : 'text-gray-900'}`}>Full Payment</h4>
                         <p className="text-xs text-green-600 font-medium">5% Discount</p>
                       </div>
                     </div>
@@ -363,36 +411,42 @@ const OrderSection = () => {
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.payment === 'cod' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, payment: 'cod' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, payment: 'cod' }));
+                      scrollToNext(confirmButtonRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-black font-bold text-xs">COD</span>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.payment === 'cod' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">Cash on Delivery</h4>
-                        <p className="text-xs text-gray-500">Pay when delivered</p>
+                        <h4 className={`font-semibold text-sm ${form.payment === 'cod' ? 'text-white' : 'text-gray-900'}`}>Cash on Delivery</h4>
+                        <p className={`text-xs ${form.payment === 'cod' ? 'text-gray-300' : 'text-gray-500'}`}>Pay when delivered</p>
                       </div>
                     </div>
                   </Card>
                   <Card 
                     className={`p-3 cursor-pointer transition-all border-2 rounded-lg ${
                       form.payment === 'ssl' 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-black bg-gray-800 text-white' 
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
-                    onClick={() => setForm(prev => ({ ...prev, payment: 'ssl' }))}
+                    onClick={() => {
+                      setForm(prev => ({ ...prev, payment: 'ssl' }));
+                      scrollToNext(confirmButtonRef);
+                    }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-black font-bold text-xs">SSL</span>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        {form.payment === 'ssl' && <div className="w-3 h-3 bg-black rounded-full"></div>}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-sm text-gray-900">SSL Payment</h4>
-                        <p className="text-xs text-gray-500">Secure online payment</p>
+                        <h4 className={`font-semibold text-sm ${form.payment === 'ssl' ? 'text-white' : 'text-gray-900'}`}>SSL Payment</h4>
+                        <p className={`text-xs ${form.payment === 'ssl' ? 'text-gray-300' : 'text-gray-500'}`}>Secure online payment</p>
                       </div>
                     </div>
                   </Card>
@@ -473,6 +527,7 @@ const OrderSection = () => {
 
               {/* Submit Button */}
               <Button 
+                ref={confirmButtonRef}
                 onClick={handleSubmit}
                 disabled={!isFormValid}
                 className="w-full btn-cta"
