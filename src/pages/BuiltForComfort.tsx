@@ -1,8 +1,14 @@
+import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { BackgroundBeamsWithCollision } from '@/components/ui/background-beams-with-collision';
 
 const BuiltForComfort = () => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -132,8 +138,8 @@ const BuiltForComfort = () => {
         </section>
 
         {/* Experience Section */}
-        <section className="py-24 bg-black text-white">
-          <div className="max-w-4xl mx-auto px-6 text-center">
+        <BackgroundBeamsWithCollision className="py-24 bg-black text-white from-black to-black dark:from-black dark:to-black">
+          <div className="max-w-4xl mx-auto px-6 text-center relative z-20">
             <h2 className="text-5xl font-bold mb-8">The Experience</h2>
             <p className="text-xl text-gray-300 mb-16 leading-relaxed">
               Wake up to natural light. Come home to the perfect ambiance. 
@@ -141,21 +147,21 @@ const BuiltForComfort = () => {
             </p>
             
             <div className="grid md:grid-cols-3 gap-8 text-left">
-              <div className="bg-gray-900 rounded-2xl p-8">
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-8">
                 <h3 className="text-xl font-bold mb-4">Morning Routine</h3>
                 <p className="text-gray-400 leading-relaxed">
                   Curtains open gently with the sunrise, creating the perfect wake-up experience.
                 </p>
               </div>
               
-              <div className="bg-gray-900 rounded-2xl p-8">
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-8">
                 <h3 className="text-xl font-bold mb-4">Away Mode</h3>
                 <p className="text-gray-400 leading-relaxed">
                   Simulate presence while you're away with intelligent scheduling patterns.
                 </p>
               </div>
               
-              <div className="bg-gray-900 rounded-2xl p-8">
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-8">
                 <h3 className="text-xl font-bold mb-4">Evening Comfort</h3>
                 <p className="text-gray-400 leading-relaxed">
                   Automatic closure at sunset creates intimate, cozy spaces for relaxation.
@@ -163,7 +169,7 @@ const BuiltForComfort = () => {
               </div>
             </div>
           </div>
-        </section>
+        </BackgroundBeamsWithCollision>
 
         {/* CTA Section */}
         <section className="py-32 bg-white">

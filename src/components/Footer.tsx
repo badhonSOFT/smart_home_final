@@ -1,6 +1,34 @@
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Phone, Mail, MapPin, CreditCard, Smartphone } from 'lucide-react';
+import navbarLogo from '@/assets/navbar_imgaes.png';
+import footerLogo from '@/assets/footer_logo.png';
 
 const Footer = () => {
+  const [activeSection, setActiveSection] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (location.pathname === '/') {
+        const sections = ['specs', 'gallery', 'compare', 'faq'];
+        const currentSection = sections.find(section => {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            return rect.top <= 100 && rect.bottom >= 100;
+          }
+          return false;
+        });
+        setActiveSection(currentSection || '');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -15,7 +43,11 @@ const Footer = () => {
           {/* Left: Logo & Brand */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-bold mb-2">Curtain Luxe</h3>
+              <img 
+                src={navbarLogo} 
+                alt="Curtain Luxe" 
+                className="h-8 w-auto mb-2"
+              />
               <p className="text-sm text-gray-700 mb-2">
                 Smart Comfort. Designed for You.
               </p>
@@ -23,12 +55,13 @@ const Footer = () => {
                 Part of #BuiltForComfort
               </p>
               <a 
-                href="https://connect.sohub.com.bd" 
+                href="https://sohub.com.bd" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-xs text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-2"
               >
-                Powered by SOHUB
+                <img src={footerLogo} alt="SOHUB" className="h-4 w-auto" />
+                <span>Powered by SOHUB</span>
               </a>
             </div>
             
@@ -52,16 +85,10 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <button 
-                  onClick={() => scrollToSection('hero')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  Home
-                </button>
-              </li>
-              <li>
-                <button 
                   onClick={() => scrollToSection('specs')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
+                  className={`hover:text-gray-900 transition-colors ${
+                    activeSection === 'specs' ? 'text-black font-bold' : 'text-gray-700'
+                  }`}
                 >
                   Specs
                 </button>
@@ -69,7 +96,9 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => scrollToSection('gallery')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
+                  className={`hover:text-gray-900 transition-colors ${
+                    activeSection === 'gallery' ? 'text-black font-bold' : 'text-gray-700'
+                  }`}
                 >
                   Gallery
                 </button>
@@ -77,18 +106,29 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => scrollToSection('compare')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
+                  className={`hover:text-gray-900 transition-colors ${
+                    activeSection === 'compare' ? 'text-black font-bold' : 'text-gray-700'
+                  }`}
                 >
                   Compare
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => scrollToSection('order')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
+                  onClick={() => scrollToSection('faq')}
+                  className={`hover:text-gray-900 transition-colors ${
+                    activeSection === 'faq' ? 'text-black font-bold' : 'text-gray-700'
+                  }`}
                 >
-                  Order
+                  FAQ
                 </button>
+              </li>
+              <li>
+                <a href="/built-for-comfort" className={`hover:text-gray-900 transition-colors ${
+                  location.pathname === '/built-for-comfort' ? 'text-black font-bold' : 'text-gray-700'
+                }`}>
+                  #BuiltForComfort
+                </a>
               </li>
             </ul>
           </div>
@@ -98,32 +138,25 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Installation Guide
+                <a href="/contact" className={`hover:text-gray-900 transition-colors ${
+                  location.pathname === '/contact' ? 'text-black font-bold' : 'text-gray-700'
+                }`}>
+                  Contact Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  User Manual
+                <a href="/about" className={`hover:text-gray-900 transition-colors ${
+                  location.pathname === '/about' ? 'text-black font-bold' : 'text-gray-700'
+                }`}>
+                  About Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Troubleshooting
+                <a href="/track-order" className={`hover:text-gray-900 transition-colors ${
+                  location.pathname === '/track-order' ? 'text-black font-bold' : 'text-gray-700'
+                }`}>
+                  Track Order
                 </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-700 hover:text-gray-900 transition-colors">
-                  Warranty
-                </a>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollToSection('faq')}
-                  className="text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  FAQ
-                </button>
               </li>
             </ul>
           </div>
@@ -134,18 +167,18 @@ const Footer = () => {
             
             {/* Contact Info */}
             <div className="space-y-2 text-sm">
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-gray-600" />
-                <span className="text-gray-700">+880 1XXX-XXXXXX</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4 text-gray-600" />
-                <span className="text-gray-700">hello@curtainluxe.com</span>
+              <div className="flex items-start space-x-2">
+                <Phone className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
+                <a href="tel:+8809678076482" className="text-gray-700 hover:text-gray-900 transition-colors">+88 09678-076482</a>
               </div>
               <div className="flex items-start space-x-2">
-                <MapPin className="w-4 h-4 text-gray-600 mt-0.5" />
-                <span className="text-gray-700 text-xs">
-                  Dhaka, Bangladesh
+                <Mail className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
+                <a href="mailto:hello@sohub.com.bd" className="text-gray-700 hover:text-gray-900 transition-colors">hello@sohub.com.bd</a>
+              </div>
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-700">
+                  Flat #C2, House #29, Kaderabad, Katasur, Mohammadpur, Dhaka-1207
                 </span>
               </div>
             </div>
@@ -170,17 +203,15 @@ const Footer = () => {
         <div className="container-width px-4 md:px-6 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
             <p>© 2025 Curtain Luxe. All rights reserved.</p>
-            <p>
-              Powered by{' '}
-              <a 
-                href="https://connect.sohub.com.bd" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                SOHUB
-              </a>
-            </p>
+            <a 
+              href="https://sohub.com.bd" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <img src={footerLogo} alt="SOHUB" className="h-4 w-auto" />
+              <span>Powered by SOHUB</span>
+            </a>
           </div>
         </div>
       </div>

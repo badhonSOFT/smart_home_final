@@ -86,7 +86,7 @@ const ProblemSolutionSection = () => {
 
         {/* Bottom CTA */}
         <div className="text-center mt-20">
-          <div className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="inline-flex items-center px-8 py-4 bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
             <span className="text-white font-semibold">
               Experience #BuiltForComfort Today
             </span>

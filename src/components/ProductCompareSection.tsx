@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Typewriter } from '@/components/ui/typewriter-text';
 import { Check, X, ExternalLink } from 'lucide-react';
 import heroSlidingImage from '@/assets/hero-sliding-curtain.jpg';
 import heroRollerImage from '@/assets/hero-roller-curtain.jpg';
@@ -181,7 +182,11 @@ const ProductCompareSection = () => {
         <div className="card-minimal overflow-hidden">
           <div className="p-6 border-b border-border bg-surface">
             <h3 className="text-title text-primary text-center">
-              Side-by-Side Comparison
+              Side-by-Side <Typewriter
+                text="Comparison"
+                speed={80}
+                className="text-title text-primary"
+              />
             </h3>
           </div>
           

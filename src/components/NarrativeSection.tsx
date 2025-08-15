@@ -81,13 +81,7 @@ const NarrativeSection = () => {
                 alt="Manual curtains vs smart curtains comparison"
                 className="w-full h-full object-cover filter grayscale"
               />
-              {/* Overlay with comparison */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
-                <div className="p-6 text-white">
-                  <h3 className="text-lg font-semibold mb-2">The old way:</h3>
-                  <p className="text-sm opacity-90">Manual tugging, inconsistent timing, forgotten routines</p>
-                </div>
-              </div>
+
             </div>
             
             {/* Floating card */}

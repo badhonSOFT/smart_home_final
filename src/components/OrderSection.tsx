@@ -53,16 +53,16 @@ const OrderSection = () => {
   };
 
   const prices = {
-    sliding: { wifi: 15000, zigbee: 13000 },
-    roller: { wifi: 12000, zigbee: 10000 }
+    sliding: { wifi: 36000, zigbee: 36000 },
+    roller: { wifi: 13000, zigbee: 13000 }
   };
 
   const calculatePrice = () => {
     if (!form.curtainType || !form.motorType) return 0;
     
     let basePrice = prices[form.curtainType][form.motorType];
-    const area = parseFloat(form.height || '0') * parseFloat(form.width || '0');
-    const trackPrice = area * 500;
+    const width = parseFloat(form.width || '0');
+    const trackPrice = width * 500;
     const hubPrice = form.motorType === 'zigbee' ? 3000 : 0;
     const installationPrice = form.installation === 'sohub' ? 2000 : 0;
     const remoteSetupPrice = form.remoteSetup ? 1000 : 0;
@@ -80,13 +80,13 @@ const OrderSection = () => {
     setTimeout(() => setShowSuccess(false), 5000);
   };
 
-  const isFormValid = form.curtainType && form.motorType && form.height && form.width && 
+  const isFormValid = form.curtainType && form.motorType && form.width && 
                      form.installation && form.name && form.phone && form.address && form.payment;
 
   return (
     <section 
       id="order" 
-      className="min-h-screen bg-background py-16"
+      className="min-h-screen bg-background py-16 pt-24"
     >
       <div className="container-width">
         <div className="text-center mb-16">
@@ -99,7 +99,7 @@ const OrderSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Left: Sticky Product Images */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden shadow-medium transition-all duration-500">
+            <div className="aspect-square rounded-lg overflow-hidden shadow-medium transition-all duration-500">
               <img 
                 src={
                   form.curtainType === 'sliding' ? slidingImage :
@@ -111,7 +111,9 @@ const OrderSection = () => {
                   form.curtainType === 'roller' ? 'Roller curtain system' :
                   'Select curtain type'
                 }
-                className="w-full h-full object-cover transition-opacity duration-300" 
+                className={`w-full h-full transition-opacity duration-300 ${
+                  form.curtainType ? 'object-contain' : 'object-cover'
+                }`} 
               />
             </div>
             <div className="mt-4 text-center">
@@ -232,39 +234,25 @@ const OrderSection = () => {
                 )}
               </div>
 
-              {/* Size */}
+              {/* Track Size */}
               <div ref={sizeRef} className={`space-y-4 ${!form.motorType ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>3. Size</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Height (ft)</Label>
+                <Label>3. Track Size (per feet ৳500)</Label>
+                <div className="space-y-2">
+                  <Label>Width (ft)</Label>
                   <Input 
                     type="number" 
                     placeholder="0"
-                    value={form.height}
+                    value={form.width}
                     onChange={(e) => {
-                      setForm(prev => ({ ...prev, height: e.target.value }));
-                      if (e.target.value && form.width) scrollToNext(installationRef);
+                      setForm(prev => ({ ...prev, width: e.target.value }));
+                      if (e.target.value) scrollToNext(installationRef);
                     }}
                   />
-                </div>
-                  <div className="space-y-2">
-                    <Label>Width (ft)</Label>
-                    <Input 
-                      type="number" 
-                      placeholder="0"
-                      value={form.width}
-                      onChange={(e) => {
-                        setForm(prev => ({ ...prev, width: e.target.value }));
-                        if (e.target.value && form.height) scrollToNext(installationRef);
-                      }}
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Installation */}
-              <div ref={installationRef} className={`space-y-3 ${!form.height || !form.width ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div ref={installationRef} className={`space-y-3 ${!form.width ? 'opacity-50 pointer-events-none' : ''}`}>
                 <Label>4. Installation</Label>
                 <div className="space-y-3">
                   <Card 
@@ -295,7 +283,7 @@ const OrderSection = () => {
                         : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                     }`}
                     onClick={() => {
-                      setForm(prev => ({ ...prev, installation: 'sohub' }));
+                      setForm(prev => ({ ...prev, installation: 'sohub', remoteSetup: false }));
                       scrollToNext(deliveryRef);
                     }}
                   >
@@ -313,13 +301,15 @@ const OrderSection = () => {
               </div>
 
               {/* Remote Setup */}
-              <div className={`flex items-center justify-between ${!form.installation ? 'opacity-50 pointer-events-none' : ''}`}>
-                <Label>5. Remote Setup (+৳1,000)</Label>
-                <Switch 
-                  checked={form.remoteSetup}
-                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, remoteSetup: checked }))}
-                />
-              </div>
+              {form.installation !== 'sohub' && (
+                <div className={`flex items-center justify-between ${!form.installation ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <Label>5. Remote Setup (+৳1,000)</Label>
+                  <Switch 
+                    checked={form.remoteSetup}
+                    onCheckedChange={(checked) => setForm(prev => ({ ...prev, remoteSetup: checked }))}
+                  />
+                </div>
+              )}
 
               <Separator />
 
@@ -463,7 +453,7 @@ const OrderSection = () => {
                       <span>৳{pricing.basePrice.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Track Size ({form.height}×{form.width} ft)</span>
+                      <span>Track ({form.width} ft width)</span>
                       <span>৳{pricing.trackPrice.toLocaleString()}</span>
                     </div>
                     {pricing.hubPrice > 0 && (

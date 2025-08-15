@@ -19,8 +19,8 @@ const AutoGallerySection = () => {
 
         {/* Bottom Badge */}
         <div className="text-center mt-12">
-          <div className="inline-flex items-center px-6 py-3 bg-accent/10 rounded-full border border-accent/20">
-            <span className="text-sm font-medium text-accent-soft">
+          <div className="inline-flex items-center px-6 py-3 rounded-full border border-blue-800" style={{ backgroundColor: 'rgb(31 41 55)' }}>
+            <span className="text-sm font-medium text-white">
               Crafted with attention to every detail • #BuiltForComfort
             </span>
           </div>

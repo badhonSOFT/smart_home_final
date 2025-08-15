@@ -77,7 +77,8 @@ const HeroSlider = () => {
                 }`}
               />
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-overlay" />
+              <div className="absolute inset-0 bg-white/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-white/20 to-white/10" />
             </div>
           </div>
         ))}
@@ -86,7 +87,7 @@ const HeroSlider = () => {
       {/* Content */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="container-width px-4 md:px-6">
-          <div className="text-center text-white max-w-4xl mx-auto">
+          <div className="text-center text-black max-w-4xl mx-auto">
             <h1 className="text-display mb-6 fade-in">
               {slides[currentSlide].headline}
             </h1>
@@ -106,7 +107,7 @@ const HeroSlider = () => {
             </div>
             {/* Built for Comfort Badge */}
             <div className="mt-8 fade-in-delay">
-              <span className="inline-flex items-center px-4 py-2 bg-blue-900 backdrop-blur-sm rounded-full text-sm font-medium text-white border border-blue-800">
+              <span className="inline-flex items-center px-4 py-2 bg-black/80 backdrop-blur-sm rounded-full text-sm font-medium text-white border border-black">
                 #BuiltForComfort
               </span>
             </div>
