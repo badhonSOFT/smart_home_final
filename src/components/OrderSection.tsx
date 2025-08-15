@@ -86,19 +86,19 @@ const OrderSection = () => {
   return (
     <section 
       id="order" 
-      className="min-h-screen bg-background py-16 pt-24"
+      className="min-h-screen bg-background py-12 md:py-16 pt-20 md:pt-24"
     >
-      <div className="container-width">
-        <div className="text-center mb-16">
-          <h2 className="text-headline text-primary mb-4">Order Your Curtain Luxe</h2>
-          <p className="text-body text-muted-foreground">
+      <div className="container-width px-4 md:px-6">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-headline text-primary mb-4 px-4">Order Your Curtain Luxe</h2>
+          <p className="text-body text-muted-foreground px-4">
             Configure your perfect smart curtain solution with transparent pricing.
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* Left: Sticky Product Images */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="lg:sticky lg:top-24 lg:self-start order-2 lg:order-1">
             <div className="aspect-square rounded-lg overflow-hidden shadow-medium transition-all duration-500">
               <img 
                 src={
@@ -126,8 +126,8 @@ const OrderSection = () => {
           </div>
 
           {/* Right: Form */}
-          <div className="space-y-6">
-            <Card className="p-6 space-y-6">
+          <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
+            <Card className="p-4 md:p-6 space-y-4 md:space-y-6">
               {/* Curtain Type */}
               <div className="space-y-3">
                 <Label>1. Curtain Type</Label>
@@ -493,25 +493,25 @@ const OrderSection = () => {
               )}
 
               {/* Delivery & Payment Info */}
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="space-y-2">
-                  <Truck className="w-6 h-6 mx-auto text-muted-foreground" />
-                  <p className="text-sm font-medium">3-4 Weeks</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="space-y-2 p-3 sm:p-0">
+                  <Truck className="w-5 h-5 md:w-6 md:h-6 mx-auto text-muted-foreground" />
+                  <p className="text-xs md:text-sm font-medium">3-4 Weeks</p>
                   <p className="text-xs text-muted-foreground">Delivery</p>
                 </div>
-                <div className="space-y-2">
-                  <CreditCard className="w-6 h-6 mx-auto text-muted-foreground" />
-                  <p className="text-sm font-medium">Multiple</p>
+                <div className="space-y-2 p-3 sm:p-0">
+                  <CreditCard className="w-5 h-5 md:w-6 md:h-6 mx-auto text-muted-foreground" />
+                  <p className="text-xs md:text-sm font-medium">Multiple</p>
                   <p className="text-xs text-muted-foreground">Payment Methods</p>
                 </div>
-                <div className="space-y-2">
-                  <Shield className="w-6 h-6 mx-auto text-muted-foreground" />
-                  <p className="text-sm font-medium">Secure</p>
+                <div className="space-y-2 p-3 sm:p-0">
+                  <Shield className="w-5 h-5 md:w-6 md:h-6 mx-auto text-muted-foreground" />
+                  <p className="text-xs md:text-sm font-medium">Secure</p>
                   <p className="text-xs text-muted-foreground">SSL Protected</p>
                 </div>
               </div>
 
-              <p className="text-xs text-center text-muted-foreground italic">
+              <p className="text-xs text-center text-muted-foreground italic px-4">
                 "We never inflate prices to offer fake discounts. We price honestly from the start."
               </p>
 

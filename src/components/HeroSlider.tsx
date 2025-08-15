@@ -88,26 +88,26 @@ const HeroSlider = () => {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="container-width px-4 md:px-6">
           <div className="text-center text-black max-w-4xl mx-auto">
-            <h1 className="text-display mb-6 fade-in">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 fade-in leading-tight">
               {slides[currentSlide].headline}
             </h1>
-            <p className="text-body-large mb-8 max-w-2xl mx-auto opacity-90 fade-in-delay">
+            <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 max-w-2xl mx-auto opacity-90 fade-in-delay px-4">
               {slides[currentSlide].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center fade-in-delay">
-              <Button onClick={scrollToOrder} className="btn-cta">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center fade-in-delay px-4">
+              <Button onClick={scrollToOrder} className="btn-cta w-full sm:w-auto">
                 Buy Now
               </Button>
               <Button 
                 onClick={() => document.getElementById('specs')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn-cta"
+                className="btn-cta w-full sm:w-auto"
               >
                 View Specs
               </Button>
             </div>
             {/* Built for Comfort Badge */}
-            <div className="mt-8 fade-in-delay">
-              <span className="inline-flex items-center px-4 py-2 bg-black/80 backdrop-blur-sm rounded-full text-sm font-medium text-white border border-black">
+            <div className="mt-6 md:mt-8 fade-in-delay">
+              <span className="inline-flex items-center px-3 md:px-4 py-2 bg-black/80 backdrop-blur-sm rounded-full text-xs md:text-sm font-medium text-white border border-black">
                 #BuiltForComfort
               </span>
             </div>
@@ -118,18 +118,18 @@ const HeroSlider = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+        className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 z-20 p-2 md:p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
       </button>
       
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+        className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 z-20 p-2 md:p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
         aria-label="Next slide"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
       </button>
 
       {/* Dots Navigation */}
@@ -149,7 +149,7 @@ const HeroSlider = () => {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 right-8 z-20">
+      <div className="hidden md:block absolute bottom-8 right-8 z-20">
         <div className="flex flex-col items-center text-white/60">
           <span className="text-sm mb-2 font-medium">Scroll</span>
           <div className="w-px h-8 bg-white/30">

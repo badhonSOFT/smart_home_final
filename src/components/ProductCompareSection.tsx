@@ -42,20 +42,20 @@ const products = [
 
 const ProductCompareSection = () => {
   return (
-    <section id="compare" className="py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="compare" className="py-12 md:py-16 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-headline text-primary mb-4">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-headline text-primary mb-4 px-4">
             Choose Your Style
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
+          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto font-light px-4">
             Both products deliver exceptional smart control. The choice comes down to your aesthetic preference and space requirements.
           </p>
         </div>
 
         {/* Product Comparison */}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
           {products.map((product, index) => (
             <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500">
               {/* Product Image */}
@@ -68,42 +68,42 @@ const ProductCompareSection = () => {
               </div>
               
               {/* Product Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="p-4 md:p-6">
+                <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                   {product.name}
                 </h3>
                 
-                <p className="text-base text-gray-600 mb-6 font-light">
+                <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6 font-light">
                   {product.description}
                 </p>
 
                 {/* Features */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                   {product.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center space-x-3">
                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                         <Check className="w-4 h-4 text-green-600" />
                       </div>
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-sm md:text-base text-gray-700">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Quick Specs */}
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-3">Key Specifications</h4>
-                  <div className="space-y-3">
+                <div className="bg-gray-50 rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+                  <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-2 md:mb-3">Key Specifications</h4>
+                  <div className="space-y-2 md:space-y-3">
                     {Object.entries(product.specs).map(([key, value]) => (
                       <div key={key} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">{key}</span>
-                        <span className="text-sm font-medium text-gray-900">{value}</span>
+                        <span className="text-xs md:text-sm text-gray-600">{key}</span>
+                        <span className="text-xs md:text-sm font-medium text-gray-900">{value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col gap-3 md:gap-4">
                   <Button 
                     onClick={() => {
                       const specsSection = document.getElementById('specs');
@@ -132,8 +132,8 @@ const ProductCompareSection = () => {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center px-6 py-3 bg-black text-white rounded-full text-base font-medium hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
+        <div className="text-center mt-12 md:mt-16 px-4">
+          <div className="inline-flex items-center px-4 md:px-6 py-3 bg-black text-white rounded-full text-sm md:text-base font-medium hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
             Experience #BuiltForComfort Today
           </div>
         </div>

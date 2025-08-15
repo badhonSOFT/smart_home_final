@@ -25,20 +25,20 @@ const problemSolutions = [
 
 const ProblemSolutionSection = () => {
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="py-12 md:py-16 bg-white">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-headline text-primary mb-4">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-headline text-primary mb-4 px-4">
             Turn Everyday Hassles Into Instant Comfort
           </h2>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto font-light">
+          <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-light px-4">
             Experience the transformation from frustration to effortless living.
           </p>
         </div>
 
         {/* Solutions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
           {problemSolutions.map((item, index) => {
             const IconComponent = item.icon;
             return (
@@ -47,7 +47,7 @@ const ProblemSolutionSection = () => {
                 className="group relative"
               >
                 {/* Card */}
-                <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 transition-all duration-500 hover:shadow-xl hover:shadow-gray-100/50">
+                <div className="relative bg-white rounded-2xl p-6 md:p-8 border border-gray-100 hover:border-gray-200 transition-all duration-500 hover:shadow-xl hover:shadow-gray-100/50">
                   {/* Background Gradient */}
                   <div className="absolute inset-0 rounded-2xl bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
@@ -59,12 +59,12 @@ const ProblemSolutionSection = () => {
                     </div>
 
                     {/* Problem */}
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3 leading-tight">
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 leading-tight">
                       {item.problem}
                     </h3>
 
                     {/* Solution */}
-                    <p className="text-base text-gray-600 leading-relaxed font-light">
+                    <p className="text-sm md:text-base text-gray-600 leading-relaxed font-light">
                       {item.solution}
                     </p>
                   </div>
@@ -75,8 +75,8 @@ const ProblemSolutionSection = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center justify-center px-6 py-3 bg-black text-white rounded-full text-base font-medium hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
+        <div className="text-center mt-12 md:mt-16 px-4">
+          <div className="inline-flex items-center justify-center px-4 md:px-6 py-3 bg-black text-white rounded-full text-sm md:text-base font-medium hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
             Experience #BuiltForComfort Today
           </div>
         </div>

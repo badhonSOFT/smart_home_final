@@ -6,6 +6,7 @@ import navbarLogo from '@/assets/navbar_imgaes.png';
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +35,7 @@ const Navigation = () => {
   }, [location.pathname]);
 
   const handleNavigation = (sectionId: string) => {
+    setIsMobileMenuOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -115,21 +117,71 @@ const Navigation = () => {
             </button>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Desktop */}
           <Button 
             onClick={() => handleNavigation('order')}
-            className="px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
+            className="hidden md:block px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
           >
             Buy Now
           </Button>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden p-2 text-gray-900">
+          <button 
+            className="md:hidden p-2 text-gray-900"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
             </svg>
           </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+            <div className="px-4 py-4 space-y-4">
+              <button 
+                onClick={() => handleNavigation('specs')}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                Specs
+              </button>
+              <button 
+                onClick={() => handleNavigation('gallery')}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                Gallery
+              </button>
+              <button 
+                onClick={() => handleNavigation('compare')}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                Compare
+              </button>
+              <button 
+                onClick={() => handleNavigation('faq')}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                FAQ
+              </button>
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  navigate('/built-for-comfort');
+                }}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                #BuiltForComfort
+              </button>
+              <Button 
+                onClick={() => handleNavigation('order')}
+                className="w-full mt-4 px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
+              >
+                Buy Now
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
