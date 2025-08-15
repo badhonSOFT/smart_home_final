@@ -1,240 +1,140 @@
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Typewriter } from '@/components/ui/typewriter-text';
-import { Check, X, ExternalLink } from 'lucide-react';
+import { Check } from 'lucide-react';
 import heroSlidingImage from '@/assets/hero-sliding-curtain.jpg';
 import heroRollerImage from '@/assets/hero-roller-curtain.jpg';
 
-const comparisonData = [
+const products = [
   {
-    feature: 'Look & Fit',
-    sliding: 'Traditional curtain appearance, stacks to sides',
-    roller: 'Minimal, modern aesthetic, rolls up completely'
+    name: 'Smart Sliding Curtain',
+    image: heroSlidingImage,
+    description: 'Traditional elegance meets smart technology',
+    features: [
+      'Traditional curtain appearance',
+      'Up to 4.5m width coverage',
+      'Whisper-quiet operation',
+      'Flexible fabric options'
+    ],
+    specs: {
+      'Max Size': '4.5m × 3.5m',
+      'Noise Level': '< 35 dB',
+      'Motor': '2.5 Nm, 15 rpm',
+      'Best For': 'Living rooms, bedrooms'
+    }
   },
   {
-    feature: 'Max Size',
-    sliding: 'Up to 4.5m width × 3.5m height',
-    roller: 'Up to 3.5m width × 3.0m height'
-  },
-  {
-    feature: 'Noise Level',
-    sliding: '< 35 dB (whisper quiet)',
-    roller: '< 30 dB (virtually silent)'
-  },
-  {
-    feature: 'Motor Power',
-    sliding: '2.5 Nm torque, 15 rpm',
-    roller: '1.8 Nm torque, 18 rpm'
-  },
-  {
-    feature: 'Control Options',
-    sliding: 'App, Voice, Scenes, Schedules',
-    roller: 'App, Voice, Scenes, Schedules'
-  },
-  {
-    feature: 'Installation',
-    sliding: 'Ceiling or wall mount track',
-    roller: 'Compact bracket system'
-  },
-  {
-    feature: 'Best For',
-    sliding: 'Living rooms, bedrooms, large windows',
-    roller: 'Offices, modern homes, minimal spaces'
+    name: 'Smart Roller Curtain',
+    image: heroRollerImage,
+    description: 'Minimal design with maximum control',
+    features: [
+      'Modern minimal aesthetic',
+      'Compact installation',
+      'Virtually silent operation',
+      'Precision positioning'
+    ],
+    specs: {
+      'Max Size': '3.5m × 3.0m',
+      'Noise Level': '< 30 dB',
+      'Motor': '1.8 Nm, 18 rpm',
+      'Best For': 'Offices, modern homes'
+    }
   }
 ];
 
 const ProductCompareSection = () => {
   return (
-    <section id="compare" className="section-padding bg-background">
-      <div className="container-width">
+    <section id="compare" className="py-16 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <h2 className="text-headline text-primary mb-4">
             Choose Your Style
           </h2>
-          <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
             Both products deliver exceptional smart control. The choice comes down to your aesthetic preference and space requirements.
           </p>
         </div>
 
-        {/* Product Cards */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          {/* Sliding Card */}
-          <div className="card-premium p-8 group hover:shadow-strong transition-all duration-500">
-            <div className="aspect-[4/3] rounded-[var(--radius-card)] overflow-hidden mb-6">
-              <img
-                src={heroSlidingImage}
-                alt="Smart Sliding Curtain"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-            
-            <div className="space-y-4">
-              <h3 className="text-title text-primary">Smart Sliding Curtain</h3>
+        {/* Product Comparison */}
+        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {products.map((product, index) => (
+            <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500">
+              {/* Product Image */}
+              <div className="aspect-[3/2] overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Traditional curtain elegance</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Wide span coverage</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Whisper-quiet operation</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Flexible fabric options</span>
-                </div>
-              </div>
+              {/* Product Content */}
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {product.name}
+                </h3>
+                
+                <p className="text-base text-gray-600 mb-6 font-light">
+                  {product.description}
+                </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button 
-                  onClick={() => {
-                    const specsSection = document.getElementById('specs');
-                    if (specsSection) {
-                      specsSection.scrollIntoView({ behavior: 'smooth' });
-                      setTimeout(() => {
-                        const slidingButton = specsSection.querySelector('button:first-of-type') as HTMLButtonElement;
-                        if (slidingButton) slidingButton.click();
-                      }, 500);
-                    }
-                  }}
-                  className="btn-secondary"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Specs
-                </Button>
-                <Button 
-                  onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="btn-cta"
-                >
-                  Buy Now
-                </Button>
+                {/* Features */}
+                <div className="space-y-3 mb-6">
+                  {product.features.map((feature, featureIndex) => (
+                    <div key={featureIndex} className="flex items-center space-x-3">
+                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-4 h-4 text-green-600" />
+                      </div>
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Specs */}
+                <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-3">Key Specifications</h4>
+                  <div className="space-y-3">
+                    {Object.entries(product.specs).map(([key, value]) => (
+                      <div key={key} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">{key}</span>
+                        <span className="text-sm font-medium text-gray-900">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    onClick={() => {
+                      const specsSection = document.getElementById('specs');
+                      if (specsSection) {
+                        specsSection.scrollIntoView({ behavior: 'smooth' });
+                        setTimeout(() => {
+                          const button = specsSection.querySelector(`button:${index === 0 ? 'first' : 'last'}-of-type`) as HTMLButtonElement;
+                          if (button) button.click();
+                        }, 500);
+                      }
+                    }}
+                    className="flex-1 bg-gray-100 text-gray-900 hover:bg-gray-200 border-0"
+                  >
+                    View Full Specs
+                  </Button>
+                  <Button 
+                    onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="flex-1 bg-black text-white hover:bg-gray-800"
+                  >
+                    Buy Now
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Roller Card */}
-          <div className="card-premium p-8 group hover:shadow-strong transition-all duration-500">
-            <div className="aspect-[4/3] rounded-[var(--radius-card)] overflow-hidden mb-6">
-              <img
-                src={heroRollerImage}
-                alt="Smart Roller Curtain"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-            
-            <div className="space-y-4">
-              <h3 className="text-title text-primary">Smart Roller Curtain</h3>
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Minimal, modern design</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Compact installation</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Virtually silent</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-muted-foreground">Precision control</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button 
-                  onClick={() => {
-                    const specsSection = document.getElementById('specs');
-                    if (specsSection) {
-                      specsSection.scrollIntoView({ behavior: 'smooth' });
-                      setTimeout(() => {
-                        const rollerButton = specsSection.querySelector('button:last-of-type') as HTMLButtonElement;
-                        if (rollerButton) rollerButton.click();
-                      }, 500);
-                    }
-                  }}
-                  className="btn-secondary"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Specs
-                </Button>
-                <Button 
-                  onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="btn-cta"
-                >
-                  Buy Now
-                </Button>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Comparison Table */}
-        <div className="card-minimal overflow-hidden">
-          <div className="p-6 border-b border-border bg-surface">
-            <h3 className="text-title text-primary text-center">
-              Side-by-Side <Typewriter
-                text="Comparison"
-                speed={80}
-                className="text-title text-primary"
-              />
-            </h3>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-4 font-semibold text-primary w-1/3">Feature</th>
-                  <th className="text-left p-4 font-semibold text-primary">Sliding Curtain</th>
-                  <th className="text-left p-4 font-semibold text-primary">Roller Curtain</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonData.map((row, index) => (
-                  <tr key={index} className="border-b border-border last:border-b-0 hover:bg-surface/50 transition-colors">
-                    <td className="p-4 font-medium text-muted-foreground">
-                      {row.feature}
-                    </td>
-                    <td className="p-4 text-foreground">
-                      {row.sliding}
-                    </td>
-                    <td className="p-4 text-foreground">
-                      {row.roller}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="p-6 border-t border-border bg-surface/50">
-            <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-4">
-                <Badge variant="outline" className="border-accent/20 text-accent-soft">
-                  #BuiltForComfort
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Both products share the same premium smart features
-                </span>
-              </div>
-              
-              <Button 
-                onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn-cta"
-              >
-                Choose Your Style
-              </Button>
-            </div>
+        {/* Bottom CTA */}
+        <div className="text-center mt-16">
+          <div className="inline-flex items-center px-6 py-3 bg-black text-white rounded-full text-base font-medium hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
+            Experience #BuiltForComfort Today
           </div>
         </div>
       </div>
