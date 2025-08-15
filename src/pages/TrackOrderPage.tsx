@@ -95,32 +95,32 @@ const TrackOrderPage = () => {
       <Navigation />
       <main className="pt-24">
         {/* Header Section */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="w-10 h-10 text-blue-600" />
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+              <Search className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-black mb-4 md:mb-6 tracking-tight">
               Track Your Order
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Enter your Order ID (e.g., 100011) or Phone Number (11 digits) to get real-time updates on your order status.
             </p>
           </div>
         </section>
 
         {/* Search Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-2xl mx-auto px-6">
-            <Card className="p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
-              <div className="flex flex-col sm:flex-row gap-4">
+        <section className="py-12 md:py-16 bg-gray-50">
+          <div className="max-w-2xl mx-auto px-4 md:px-6">
+            <Card className="p-6 md:p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <div className="flex flex-col gap-4">
                 <div className="flex-1">
                   <Input
                     type="text"
-                    placeholder="Order ID (e.g., 100011) or Phone Number (11 digits)"
+                    placeholder="Order ID or Phone Number"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg text-lg py-3"
+                    className="w-full bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg text-base md:text-lg py-3"
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   />
                   {error && (
@@ -130,7 +130,7 @@ const TrackOrderPage = () => {
                 <Button
                   onClick={handleSearch}
                   disabled={loading}
-                  className="bg-black text-white hover:bg-gray-800 px-8 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2"
+                  className="w-full sm:w-auto bg-black text-white hover:bg-gray-800 px-6 md:px-8 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -146,8 +146,8 @@ const TrackOrderPage = () => {
 
         {/* Results Section */}
         {hasSearched && (
-          <section className="py-16 bg-white">
-            <div className="max-w-6xl mx-auto px-6">
+          <section className="py-12 md:py-16 bg-white">
+            <div className="max-w-6xl mx-auto px-4 md:px-6">
               {loading ? (
                 <div className="text-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
@@ -160,8 +160,8 @@ const TrackOrderPage = () => {
                   </p>
                   <div className="grid gap-6">
                     {orders.map((order) => (
-                      <Card key={order.id} className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
-                        <div className="space-y-4">
+                      <Card key={order.id} className="p-4 md:p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                        <div className="space-y-3 md:space-y-4">
                           {/* Header */}
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div>
@@ -187,10 +187,10 @@ const TrackOrderPage = () => {
                           </div>
 
                           {/* Details Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                            <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
                               <p className="text-xs text-gray-500 uppercase tracking-wide">Date</p>
-                              <p className="text-sm font-medium text-gray-900">{order.date}</p>
+                              <p className="text-xs md:text-sm font-medium text-gray-900">{order.date}</p>
                             </div>
                             <div className="bg-gray-50 p-3 rounded-lg">
                               <p className="text-xs text-gray-500 uppercase tracking-wide">Phone</p>

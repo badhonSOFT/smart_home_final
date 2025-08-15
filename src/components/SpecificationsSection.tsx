@@ -116,19 +116,19 @@ const SpecificationsSection = () => {
 
   return (
     <section id="specs" className="section-padding bg-surface">
-      <div className="container-width">
+      <div className="container-width px-4 md:px-6">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="text-headline text-primary mb-4">
             Curtain Luxe — Built the Right Way
           </h2>
           
           {/* Tab Menu */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6 md:mb-8">
             <div className="bg-background rounded-[var(--radius-button)] p-1 border border-border shadow-subtle">
               <button
                 onClick={() => setActiveTab('sliding')}
-                className={`px-6 py-3 rounded-[var(--radius-button)] font-medium transition-all duration-300 ${
+                className={`px-4 md:px-6 py-2 md:py-3 rounded-[var(--radius-button)] font-medium transition-all duration-300 text-sm md:text-base ${
                   activeTab === 'sliding'
                     ? 'bg-primary text-primary-foreground shadow-soft'
                     : 'text-muted-foreground hover:text-foreground'
@@ -138,7 +138,7 @@ const SpecificationsSection = () => {
               </button>
               <button
                 onClick={() => setActiveTab('roller')}
-                className={`px-6 py-3 rounded-[var(--radius-button)] font-medium transition-all duration-300 ${
+                className={`px-4 md:px-6 py-2 md:py-3 rounded-[var(--radius-button)] font-medium transition-all duration-300 text-sm md:text-base ${
                   activeTab === 'roller'
                     ? 'bg-primary text-primary-foreground shadow-soft'
                     : 'text-muted-foreground hover:text-foreground'
@@ -151,11 +151,11 @@ const SpecificationsSection = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
           {/* Left: Content & Specs */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {/* Tab Introduction */}
-            <div className="space-y-4 fade-in">
+            <div className="space-y-3 md:space-y-4 fade-in">
               <h3 className="text-title text-primary">
                 {currentContent.subtitle}
               </h3>
@@ -175,23 +175,23 @@ const SpecificationsSection = () => {
             </div>
 
             {/* Specifications Tables */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {sharedSpecGroups.map((group, groupIndex) => {
                 const IconComponent = group.icon;
                 return (
-                  <div key={groupIndex} className="card-minimal p-6">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
-                        <IconComponent className="w-5 h-5 text-accent-soft" />
+                  <div key={groupIndex} className="card-minimal p-4 md:p-6">
+                    <div className="flex items-center space-x-3 mb-3 md:mb-4">
+                      <div className="w-8 h-8 md:w-10 md:h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-accent-soft" />
                       </div>
-                      <h4 className="font-semibold text-primary">{group.title}</h4>
+                      <h4 className="text-sm md:text-base font-semibold text-primary">{group.title}</h4>
                     </div>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       {group.specs.map((spec, specIndex) => (
-                        <div key={specIndex} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
+                        <div key={specIndex} className="flex justify-between items-center py-1 md:py-2 border-b border-border last:border-b-0">
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-muted-foreground">
+                            <span className="text-xs md:text-sm font-medium text-muted-foreground">
                               {spec.label}
                             </span>
                             {spec.tooltip && (
@@ -209,7 +209,7 @@ const SpecificationsSection = () => {
                               </button>
                             )}
                           </div>
-                          <span className="text-sm font-semibold text-primary">
+                          <span className="text-xs md:text-sm font-semibold text-primary">
                             {spec.value}
                           </span>
                         </div>
@@ -245,9 +245,9 @@ const SpecificationsSection = () => {
           </div>
 
           {/* Right: Images */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6 order-first lg:order-last">
             {currentContent.images.map((image, index) => (
-              <div key={index} className="w-full overflow-hidden shadow-medium">
+              <div key={index} className="w-full overflow-hidden shadow-medium rounded-lg">
                 <img
                   src={image.src}
                   alt={image.alt}

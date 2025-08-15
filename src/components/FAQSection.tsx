@@ -3,8 +3,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 const FAQSection = () => {
   return (
     <section id="faq" className="section-padding bg-surface">
-      <div className="container-width">
-        <div className="text-center mb-12">
+      <div className="container-width px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="text-headline text-primary mb-4">Questions, Answered</h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
             Everything you need to know about Curtain Luxe smart curtains.
@@ -12,8 +12,8 @@ const FAQSection = () => {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="border border-border rounded-lg px-6">
+          <Accordion type="single" collapsible className="space-y-3 md:space-y-4">
+            <AccordionItem value="item-1" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 Wi-Fi vs Zigbee — which should I choose?
               </AccordionTrigger>
@@ -24,7 +24,7 @@ const FAQSection = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-2" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 What happens during a power failure?
               </AccordionTrigger>
@@ -33,7 +33,7 @@ const FAQSection = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-3" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 What's the maximum width and height?
               </AccordionTrigger>
@@ -46,7 +46,7 @@ const FAQSection = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-4" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 Is warranty valid with self-installation?
               </AccordionTrigger>
@@ -55,7 +55,7 @@ const FAQSection = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-5" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 Does it support voice control?
               </AccordionTrigger>
@@ -64,7 +64,7 @@ const FAQSection = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6" className="border border-border rounded-lg px-6">
+            <AccordionItem value="item-6" className="border border-border rounded-lg px-4 md:px-6">
               <AccordionTrigger className="text-left font-semibold">
                 Delivery timeline & support policy?
               </AccordionTrigger>

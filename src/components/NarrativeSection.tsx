@@ -5,8 +5,8 @@ import heroSlidingImage from '@/assets/hero-sliding-curtain.jpg';
 const NarrativeSection = () => {
   return (
     <section className="section-padding bg-gradient-section">
-      <div className="container-width">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="container-width px-4 md:px-6">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-4">
@@ -85,9 +85,9 @@ const NarrativeSection = () => {
             </div>
             
             {/* Floating card */}
-            <div className="absolute -bottom-6 -right-6 bg-background p-6 rounded-[var(--radius-card)] shadow-strong border border-border max-w-xs">
-              <h4 className="font-semibold text-primary mb-2">The Curtain Luxe way:</h4>
-              <p className="text-sm text-muted-foreground">Smart automation that adapts to your life</p>
+            <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 bg-background p-4 md:p-6 rounded-[var(--radius-card)] shadow-strong border border-border max-w-xs">
+              <h4 className="text-sm md:text-base font-semibold text-primary mb-2">The Curtain Luxe way:</h4>
+              <p className="text-xs md:text-sm text-muted-foreground">Smart automation that adapts to your life</p>
             </div>
           </div>
         </div>

@@ -46,21 +46,21 @@ const ContactPage = () => {
       <Navigation />
       <main className="pt-24">
         {/* Hero Section */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-black mb-4 md:mb-6 tracking-tight">
               Get in Touch
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Have a question? Want to know more about Curtain Luxe or #BuiltForComfort? We'd love to hear from you.
             </p>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-12">
+        <section className="py-12 md:py-16 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
               {/* Left Column - Info Cards */}
               <div className="space-y-6">
                 <Card className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
@@ -114,7 +114,7 @@ const ContactPage = () => {
               </div>
 
               {/* Right Column - Form */}
-              <Card className="p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <Card className="p-6 md:p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
                 <div className="flex items-center space-x-2 mb-6">
                   <MessageCircle className="w-5 h-5 text-gray-600" />
                   <h2 className="text-xl font-semibold text-black">Send us a message</h2>
@@ -214,12 +214,12 @@ const ContactPage = () => {
         </section>
 
         {/* Promise Banner */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-6">
-            <Card className="p-8 bg-gray-900 text-white rounded-2xl shadow-xl">
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-4xl mx-auto px-4 md:px-6">
+            <Card className="p-6 md:p-8 bg-gray-900 text-white rounded-2xl shadow-xl">
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4">Our Promise</h3>
-                <p className="text-gray-300 text-lg leading-relaxed">
+                <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Our Promise</h3>
+                <p className="text-gray-300 text-base md:text-lg leading-relaxed">
                   We believe in full transparency — your voice matters. Every message is read personally by our team.
                 </p>
               </div>
