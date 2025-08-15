@@ -493,7 +493,7 @@ const OrderSection = () => {
               )}
 
               {/* Delivery & Payment Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
                 <div className="space-y-2 p-3 sm:p-0">
                   <Truck className="w-5 h-5 md:w-6 md:h-6 mx-auto text-muted-foreground" />
                   <p className="text-xs md:text-sm font-medium">3-4 Weeks</p>

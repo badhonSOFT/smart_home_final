@@ -192,7 +192,7 @@ const Footer = () => {
             <img 
               src="/src/assets/footer/payment.png" 
               alt="Payment methods - bKash, Nagad, Visa, Mastercard" 
-              className="mx-auto h-12"
+              className="mx-auto h-6 md:h-10 max-w-full"
             />
           </div>
         </div>
