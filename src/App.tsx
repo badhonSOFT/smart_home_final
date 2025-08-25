@@ -14,7 +14,13 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminReports from "./pages/AdminReports";
 import AdminCustomers from "./pages/AdminCustomers";
 import AdminUsers from "./pages/AdminUsers";
+import AdminCategories from "./pages/AdminCategories";
+import SetupDatabase from "./pages/SetupDatabase";
+import SetupStorage from "./pages/SetupStorage";
+import UpdateProductSchema from "./pages/UpdateProductSchema";
+import SeedData from "./pages/SeedData";
 import NotFound from "./pages/NotFound";
+import ThankYou from "./pages/ThankYou";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +42,12 @@ const App = () => (
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/admin/customers" element={<AdminCustomers />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path="/setup-database" element={<SetupDatabase />} />
+          <Route path="/setup-storage" element={<SetupStorage />} />
+          <Route path="/update-schema" element={<UpdateProductSchema />} />
+          <Route path="/seed-data" element={<SeedData />} />
+          <Route path="/thank-you" element={<ThankYou />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

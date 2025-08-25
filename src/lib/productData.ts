@@ -8,8 +8,8 @@ export const productData = {
     sold: 250,
     price: 25.99,
     images: [
-      { id: "1", src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600", alt: "Smart Switch" },
-      { id: "2", src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600", alt: "Smart Switch Side" },
+      { id: "1", src: "/images/smart_switch/fan touch switch.webp", alt: "Smart Switch" },
+      { id: "2", src: "/images/smart_switch/3 gang mechanical.webp", alt: "Smart Switch Side" },
     ],
     badges: ["WiFi", "works with Alexa"],
     shipFrom: [{ id: "china", label: "China" }],

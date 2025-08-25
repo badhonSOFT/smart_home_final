@@ -16,18 +16,24 @@ interface BuyNowModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   product: {
-    brand: string;
-    title: string;
-    sku: string;
-    rating?: number;
-    reviews?: number;
-    sold?: number;
+    id: string;
+    name: string;
+    category: string;
     price: number;
-    images: Image[];
-    badges?: string[];
-    shipFrom: ShipFrom[];
-    lengthOptions: LengthOption[];
-    shipping: { cost: number; label: string; est: string };
+    description?: string;
+    detailed_description?: string;
+    features?: string;
+    specifications?: string;
+    engraving_available?: boolean;
+    engraving_price?: number;
+    warranty?: string;
+    installation_included?: boolean;
+    image?: string;
+    image2?: string;
+    image3?: string;
+    image4?: string;
+    image5?: string;
+    stock: number;
   };
   onAddToCart: (payload: any) => Promise<void>;
   onBuyNow: (payload: any) => Promise<void>;
@@ -36,27 +42,27 @@ interface BuyNowModalProps {
 
 export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow, onToggleFavorite }: BuyNowModalProps) {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedShipFrom, setSelectedShipFrom] = useState(product.shipFrom[0]?.id || '');
-  const [selectedLength, setSelectedLength] = useState(product.lengthOptions.find(opt => opt.inStock)?.id || '');
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [engravingText, setEngravingText] = useState('');
   const [engravingModalOpen, setEngravingModalOpen] = useState(false);
 
-  const selectedLengthOption = product.lengthOptions.find(opt => opt.id === selectedLength);
+  // Parse features, specifications, and images
+  const features = product.features ? product.features.split('\n').filter(f => f.trim()) : [];
+  const specifications = product.specifications ? product.specifications.split('\n').filter(s => s.trim()) : [];
+  const allImages = [product.image, product.image2, product.image3, product.image4, product.image5].filter(Boolean);
 
   const handleAddToCart = async () => {
     setLoading(true);
     try {
       await onAddToCart({
-        productId: product.sku,
-        lengthId: selectedLength,
-        shipFromId: selectedShipFrom,
-        quantity
+        productId: product.id,
+        quantity,
+        engravingText: engravingText || undefined
       });
       toast({
         title: "Added to Cart",
-        description: `${product.title} has been added to your cart.`,
+        description: `${product.name} has been added to your cart.`,
       });
     } finally {
       setLoading(false);
@@ -67,10 +73,9 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
     setLoading(true);
     try {
       await onBuyNow({
-        productId: product.sku,
-        lengthId: selectedLength,
-        shipFromId: selectedShipFrom,
-        quantity
+        productId: product.id,
+        quantity,
+        engravingText: engravingText || undefined
       });
       onOpenChange(false);
     } finally {
@@ -104,106 +109,119 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
           <div className="space-y-4">
             <div className="aspect-square w-full max-w-md mx-auto rounded-lg overflow-hidden bg-gray-100">
               <img
-                src={product.images[selectedImage]?.src}
-                alt={product.images[selectedImage]?.alt}
+                src={allImages[selectedImage] || '/images/smart_switch/3 gang mechanical.webp'}
+                alt={product.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/smart_switch/3 gang mechanical.webp';
+                }}
               />
             </div>
-            <div className="flex gap-2 overflow-x-auto justify-center">
-              {product.images.map((image, index) => (
-                <button
-                  key={image.id}
-                  onClick={() => setSelectedImage(index)}
-                  className={cn(
-                    "w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0",
-                    selectedImage === index ? "border-black" : "border-gray-200"
-                  )}
-                >
-                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            {allImages.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto justify-center">
+                {allImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={cn(
+                      "w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0",
+                      selectedImage === index ? "border-black" : "border-gray-200"
+                    )}
+                  >
+                    <img 
+                      src={image} 
+                      alt={`${product.name} ${index + 1}`} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/images/smart_switch/3 gang mechanical.webp';
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Details */}
           <div className="space-y-4">
-            {/* Brand & Title */}
+            {/* Category & Title */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-gray-600">{product.brand}</span>
-                {product.badges?.map(badge => (
-                  <Badge key={badge} variant="secondary" className="text-xs">{badge}</Badge>
-                ))}
+                <span className="text-sm font-medium text-gray-600">{product.category}</span>
+                {product.stock <= 3 && product.stock > 0 && (
+                  <Badge variant="secondary" className="text-xs">Low Stock</Badge>
+                )}
+                {product.stock === 0 && (
+                  <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
+                )}
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.title}</h2>
-              <p className="text-sm text-gray-500 mb-2">Model: {product.sku}</p>
-              
-              {/* Rating */}
-              {product.rating && (
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn("w-4 h-4", i < product.rating! ? "fill-yellow-400 text-yellow-400" : "text-gray-300")}
-                      />
-                    ))}
-                  </div>
-                  {product.reviews && <span className="text-sm text-gray-500">({product.reviews})</span>}
-                  {product.sold && <Badge variant="outline" className="text-xs">{product.sold} sold</Badge>}
-                </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.name}</h2>
+              {product.description && (
+                <p className="text-sm text-gray-500 mb-2">{product.description}</p>
               )}
             </div>
 
             {/* Price */}
             <div className="text-2xl font-bold text-gray-900">
-              ৳{product.price.toFixed(2)}
+              ৳{product.price.toLocaleString()}
+              {product.engraving_available && product.engraving_price && (
+                <span className="text-sm text-gray-500 ml-2">
+                  (+৳{product.engraving_price} for engraving)
+                </span>
+              )}
             </div>
 
-            {/* Ship From */}
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Ships From</label>
-              <div className="flex gap-2">
-                {product.shipFrom.map(option => (
-                  <button
-                    key={option.id}
-                    onClick={() => setSelectedShipFrom(option.id)}
-                    className={cn(
-                      "px-3 py-1 rounded-full border text-sm",
-                      selectedShipFrom === option.id
-                        ? "border-black bg-gray-100"
-                        : "border-gray-300 hover:border-gray-400"
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+            {/* Detailed Description */}
+            {product.detailed_description && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">Description</h3>
+                <p className="text-sm text-gray-700 whitespace-pre-line">{product.detailed_description}</p>
               </div>
-            </div>
+            )}
 
-            {/* Length Options */}
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Length</label>
-              <div className="grid grid-cols-4 gap-2">
-                {product.lengthOptions.map(option => (
-                  <button
-                    key={option.id}
-                    onClick={() => option.inStock && setSelectedLength(option.id)}
-                    disabled={!option.inStock}
-                    className={cn(
-                      "p-2 rounded-lg border text-xs text-center",
-                      selectedLength === option.id
-                        ? "border-black bg-gray-100 ring-2 ring-black ring-opacity-20"
-                        : option.inStock
-                        ? "border-gray-300 hover:border-gray-400"
-                        : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-                    )}
-                  >
-                    <div className="font-medium">{option.label}</div>
-                    <div className="text-gray-500">{option.inches}" inch</div>
-                  </button>
-                ))}
+            {/* Features */}
+            {features.length > 0 && (
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Features</h3>
+                <ul className="space-y-1">
+                  {features.map((feature, index) => (
+                    <li key={index} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+
+            {/* Specifications */}
+            {specifications.length > 0 && (
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Specifications</h3>
+                <div className="text-sm text-gray-700 space-y-1">
+                  {specifications.map((spec, index) => (
+                    <div key={index}>{spec}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Warranty & Installation */}
+            <div className="flex gap-4">
+              {product.warranty && (
+                <div className="flex-1 p-3 bg-blue-50 rounded-lg">
+                  <div className="text-sm font-medium text-blue-900">Warranty</div>
+                  <div className="text-sm text-blue-700">{product.warranty}</div>
+                </div>
+              )}
+              {product.installation_included && (
+                <div className="flex-1 p-3 bg-green-50 rounded-lg">
+                  <div className="text-sm font-medium text-green-900">Installation</div>
+                  <div className="text-sm text-green-700">Included</div>
+                </div>
+              )}
             </div>
 
             {/* Quantity */}
@@ -226,36 +244,43 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
               </div>
             </div>
 
-            {/* Shipping */}
+            {/* Stock Info */}
             <div className="p-3 bg-gray-50 rounded-lg">
               <div className="text-sm">
-                <span className="font-medium">SHIPPING: </span>
-                <span className="font-semibold">
-                  {product.shipping.cost === 0 ? 'Free Shipping' : `৳${product.shipping.cost.toFixed(2)}`}
+                <span className="font-medium">STOCK: </span>
+                <span className={cn(
+                  "font-semibold",
+                  product.stock === 0 ? "text-red-600" : 
+                  product.stock <= 3 ? "text-orange-600" : "text-green-600"
+                )}>
+                  {product.stock === 0 ? 'Out of Stock' : 
+                   product.stock <= 3 ? `Only ${product.stock} left` : 'In Stock'}
                 </span>
               </div>
               <div className="text-xs text-gray-600 mt-1">
-                <div>{product.shipping.label}</div>
-                <div>Estimated Delivery: {product.shipping.est}</div>
+                <div>Free delivery within Dhaka</div>
+                <div>Estimated Delivery: 1-3 business days</div>
               </div>
             </div>
 
             {/* Actions */}
             <div className="space-y-3 pt-4 sticky bottom-0 bg-white border-t mt-6 -mx-6 px-6 py-4">
-              {/* Engraving */}
-              <EngravingTrigger
-                currentText={engravingText}
-                onClick={() => setEngravingModalOpen(true)}
-              />
+              {/* Engraving - Show only if available */}
+              {product.engraving_available && (
+                <EngravingTrigger
+                  currentText={engravingText}
+                  onClick={() => setEngravingModalOpen(true)}
+                />
+              )}
               
               <div className="flex gap-3">
                 <Button
                   variant="outline"
                   onClick={handleAddToCart}
-                  disabled={loading || !selectedLength}
+                  disabled={loading || product.stock === 0}
                   className="flex-1"
                 >
-                  ADD TO CART
+                  {product.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
                 </Button>
               </div>
               
@@ -270,20 +295,22 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
               )}
             </div>
             
-            {/* Engraving Modal */}
-            <EngravingModal
-              open={engravingModalOpen}
-              onOpenChange={setEngravingModalOpen}
-              productImage={product.images[selectedImage]?.src || ''}
-              initialText={engravingText}
-              onSave={({ text }) => {
-                setEngravingText(text);
-                toast({
-                  title: "Engraving Saved",
-                  description: text ? `Engraving "${text}" added to product.` : "Engraving removed.",
-                });
-              }}
-            />
+            {/* Engraving Modal - Show only if available */}
+            {product.engraving_available && (
+              <EngravingModal
+                open={engravingModalOpen}
+                onOpenChange={setEngravingModalOpen}
+                productImage={allImages[selectedImage] || product.image || ''}
+                initialText={engravingText}
+                onSave={({ text }) => {
+                  setEngravingText(text);
+                  toast({
+                    title: "Engraving Saved",
+                    description: text ? `Engraving "${text}" added to product.` : "Engraving removed.",
+                  });
+                }}
+              />
+            )}
           </div>
         </div>
       </DialogContent>

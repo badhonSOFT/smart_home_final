@@ -1,12 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
-import heroSlidingImage from '@/assets/hero-sliding-curtain.jpg';
-import heroRollerImage from '@/assets/hero-roller-curtain.jpg';
 
 const products = [
   {
     name: 'Smart Sliding Curtain',
-    image: heroSlidingImage,
+    video: '/videos/Slide Curtain .mp4',
     description: 'Traditional elegance meets smart technology',
     features: [
       'Traditional curtain appearance',
@@ -23,7 +21,7 @@ const products = [
   },
   {
     name: 'Smart Roller Curtain',
-    image: heroRollerImage,
+    video: '/videos/Roller Curtain.mp4',
     description: 'Minimal design with maximum control',
     features: [
       'Modern minimal aesthetic',
@@ -58,13 +56,18 @@ const ProductCompareSection = () => {
         <div className="grid lg:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
           {products.map((product, index) => (
             <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500">
-              {/* Product Image */}
+              {/* Product Video */}
               <div className="aspect-[3/2] overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
+                <video
+                  src={product.video}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
+                >
+                  Your browser does not support the video tag.
+                </video>
               </div>
               
               {/* Product Content */}

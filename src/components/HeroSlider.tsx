@@ -7,17 +7,19 @@ import heroRollerImage from '@/assets/hero-roller-curtain.jpg';
 const slides = [
   {
     id: 1,
-    image: heroSlidingImage,
+    video: '/videos/Slide Curtain .mp4',
+    image: heroSlidingImage, // Fallback image
     headline: "Glide Into Effortless Living.",
     subtitle: "Smart motion, whisper-quiet performance, and control from anywhere.",
-    alt: "Modern sliding curtain in a minimalist bedroom"
+    alt: "Smart curtain demonstration video"
   },
   {
     id: 2,
-    image: heroRollerImage,
+    video: '/videos/Roller Curtain.mp4',
+    image: heroRollerImage, // Fallback image
     headline: "Minimal Design. Maximum Control.",
     subtitle: "A clean, modern roll engineered for precision and comfort.",
-    alt: "Modern roller curtain in a minimalist living room"
+    alt: "Roller curtain demonstration video"
   }
 ];
 
@@ -69,13 +71,35 @@ const HeroSlider = () => {
             }`}
           >
             <div className="relative w-full h-full">
-              <img
-                src={slide.image}
-                alt={slide.alt}
-                className={`w-full h-full object-cover ${
-                  index === currentSlide ? 'animate-ken-burns' : ''
-                }`}
-              />
+              {slide.video ? (
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to image if video fails
+                    const target = e.target as HTMLVideoElement;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<img src="${slide.image}" alt="${slide.alt}" class="w-full h-full object-cover" />`;
+                    }
+                  }}
+                >
+                  <source src={slide.video} type="video/mp4" />
+                  {/* Fallback image if video not supported */}
+                  <img src={slide.image} alt={slide.alt} className="w-full h-full object-cover" />
+                </video>
+              ) : (
+                <img
+                  src={slide.image}
+                  alt={slide.alt}
+                  className={`w-full h-full object-cover ${
+                    index === currentSlide ? 'animate-ken-burns' : ''
+                  }`}
+                />
+              )}
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-white/20" />
               <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-white/20 to-white/10" />

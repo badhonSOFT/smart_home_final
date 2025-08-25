@@ -1,120 +1,526 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Search, Edit, Trash2, Upload } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 import AdminNavbar from '@/components/AdminNavbar';
+import { useSupabase, productService, storageService, categoryService, supabase, type Product } from '@/supabase';
 
 const AdminProducts = () => {
+  const { loading, error, executeQuery } = useSupabase();
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: '',
+    price: '',
+    stock: '',
+    description: '',
+    image: '',
+    image2: '',
+    image3: '',
+    image4: '',
+    image5: '',
+    detailed_description: '',
+    features: '',
+    specifications: '',
+    engraving_available: false,
+    engraving_price: '',
+    warranty: '',
+    installation_included: false
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageFiles, setImageFiles] = useState<{[key: string]: File | null}>({
+    image2: null,
+    image3: null,
+    image4: null,
+    image5: null
+  });
+  const [imagePreviews, setImagePreviews] = useState<{[key: string]: string}>({
+    image2: '',
+    image3: '',
+    image4: '',
+    image5: ''
+  });
+  const [showCategoryImages, setShowCategoryImages] = useState(false);
+  const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
+  const [selectedCategoryForImage, setSelectedCategoryForImage] = useState('Smart Switch');
+  const [categoryImagePreview, setCategoryImagePreview] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [dbCategoryImages, setDbCategoryImages] = useState<any[]>([]);
+
+  const categoryImages = {
+    'Smart Switch': [
+      '/images/smart_switch/one gang.webp',
+      '/images/smart_switch/3 gang mechanical.webp',
+      '/images/smart_switch/3 gang mechanical fan.webp',
+      '/images/smart_switch/4 gang touch light.webp',
+      '/images/smart_switch/fan touch switch.webp'
+    ],
+    'Smart Curtain': [
+      '/assets/hero-sliding-curtain.jpg',
+      '/assets/hero-roller-curtain.jpg',
+      '/assets/specification/slider_product.webp',
+      '/assets/specification/roller_product.webp'
+    ],
+    'Security': [
+      '/assets/gallery-1.jpg',
+      '/assets/gallery-2.jpg',
+      '/assets/gallery-3.jpg',
+      '/assets/gallery-4.jpg'
+    ],
+    'Film': [
+      '/assets/window.jpeg',
+      '/assets/gallery-5.jpg',
+      '/assets/gallery-6.jpg'
+    ]
+  };
 
   const categories = ['All', 'Smart Switch', 'Smart Curtain', 'Security', 'Film'];
 
-  const products = [
-    {
-      id: 'sw1',
-      name: 'Zemismart Tuya 2 Gang',
-      category: 'Smart Switch',
-      price: '৳3,500',
-      stock: 25,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'
-    },
-    {
-      id: 'sw2',
-      name: 'Zemismart Tuya 3 Gang',
-      category: 'Smart Switch',
-      price: '৳3,850',
-      stock: 18,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'
-    },
-    {
-      id: 'sw3',
-      name: 'Zemismart Zigbee 2 Gang',
-      category: 'Smart Switch',
-      price: '৳3,500',
-      stock: 0,
-      status: 'Out of Stock',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'
-    },
-    {
-      id: 'sw4',
-      name: 'Zemismart 4 Gang',
-      category: 'Smart Switch',
-      price: '৳3,500',
-      stock: 0,
-      status: 'Out of Stock',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'
-    },
-    {
-      id: 'sw5',
-      name: 'Sonoff 4-gang WiFi',
-      category: 'Smart Switch',
-      price: '৳2,199',
-      stock: 12,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'
-    },
-    {
-      id: 'ct1',
-      name: 'Smart Sliding Curtain',
-      category: 'Smart Curtain',
-      price: '৳36,000',
-      stock: 8,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400'
-    },
-    {
-      id: 'ct2',
-      name: 'Smart Roller Curtain',
-      category: 'Smart Curtain',
-      price: '৳13,000',
-      stock: 15,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1631889993959-41b4e9c6e3c5?w=400'
-    },
-    {
-      id: 'sc1',
-      name: 'Sohub Protect SP 01',
-      category: 'Security',
-      price: '৳8,500',
-      stock: 6,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400'
-    },
-    {
-      id: 'sc2',
-      name: 'Sohub Protect SP 05',
-      category: 'Security',
-      price: '৳12,500',
-      stock: 4,
-      status: 'Low Stock',
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400'
-    },
-    {
-      id: 'pdlc1',
-      name: 'PDLC Smart Film',
-      category: 'Film',
-      price: '৳15,000',
-      stock: 10,
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400'
+  useEffect(() => {
+    loadProducts();
+    loadCategoryImages();
+  }, []);
+
+  const loadCategoryImages = async () => {
+    try {
+      const data = await executeQuery(() => categoryService.getCategoryImages());
+      setDbCategoryImages(data || []);
+    } catch (err) {
+      console.error('Failed to load category images:', err);
     }
-  ];
+  };
+
+  const loadProducts = async () => {
+    try {
+      const data = await executeQuery(() => productService.getProducts());
+      setProducts(data || []);
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    }
+  };
 
   const getStatusColor = (status: string, stock: number) => {
     if (stock === 0) return 'bg-red-100 text-red-800';
     if (stock <= 3) return 'bg-orange-100 text-orange-800';
     if (stock <= 10) return 'bg-yellow-100 text-yellow-800';
     return 'bg-green-100 text-green-800';
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      description: product.description || '',
+      image: product.image || '',
+      image2: product.image2 || '',
+      image3: product.image3 || '',
+      image4: product.image4 || '',
+      image5: product.image5 || '',
+      detailed_description: product.detailed_description || '',
+      features: product.features || '',
+      specifications: product.specifications || '',
+      engraving_available: product.engraving_available || false,
+      engraving_price: product.engraving_price?.toString() || '',
+      warranty: product.warranty || '',
+      installation_included: product.installation_included || false
+    });
+    setImagePreview(product.image || '');
+    setImageFile(null);
+    setImageFiles({
+      image2: null,
+      image3: null,
+      image4: null,
+      image5: null
+    });
+    setImagePreviews({
+      image2: formData.image2,
+      image3: formData.image3,
+      image4: formData.image4,
+      image5: formData.image5
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleMultipleImageChange = (e: React.ChangeEvent<HTMLInputElement>, imageKey: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setImageFiles(prev => ({ ...prev, [imageKey]: file }));
+      const reader = new FileReader();
+      reader.onload = () => setImagePreviews(prev => ({ ...prev, [imageKey]: reader.result as string }));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCategoryImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setCategoryImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileSelect = (file: File) => {
+    setCategoryImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setCategoryImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files[0] && files[0].type.startsWith('image/')) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const createStorageBucket = async () => {
+    try {
+      const { error } = await supabase.storage.createBucket('product-images', {
+        public: true
+      });
+      if (error && !error.message.includes('already exists')) {
+        throw error;
+      }
+      return true;
+    } catch (error) {
+      console.log('Bucket creation error (may already exist):', error);
+      return true; // Continue anyway
+    }
+  };
+
+  const handleAddCategoryImage = async () => {
+    if (!categoryImageFile) {
+      toast({
+        title: "Error",
+        description: "Please select an image file.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // Try to create bucket first
+      await createStorageBucket();
+      
+      // Upload file
+      const fileExt = categoryImageFile.name.split('.').pop();
+      const fileName = `category-${Date.now()}.${fileExt}`;
+      const filePath = `categories/${fileName}`;
+      
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, categoryImageFile, {
+          cacheControl: '3600',
+          upsert: true
+        });
+      
+      if (error) throw error;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+      
+      // Save to database
+      await categoryService.addCategoryImage({
+        category: selectedCategoryForImage,
+        image_url: publicUrl,
+        is_active: true
+      });
+      
+      toast({
+        title: "Success",
+        description: "Category image uploaded successfully.",
+      });
+      
+      setCategoryImageFile(null);
+      setCategoryImagePreview('');
+      loadCategoryImages(); // Reload to show new image
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast({
+        title: "Error",
+        description: `Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteCategoryImage = async (id: string) => {
+    try {
+      await executeQuery(() => categoryService.deleteCategoryImage(id));
+      toast({
+        title: "Success",
+        description: "Category image deleted successfully.",
+      });
+      loadCategoryImages();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to delete image.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getCategoryImagesByCategory = (category: string) => {
+    return dbCategoryImages.filter(img => img.category === category);
+  };
+
+  const handleSave = async () => {
+    if (!editingProduct) return;
+    try {
+      let imageUrl = formData.image;
+      
+      if (imageFile) {
+        imageUrl = await executeQuery(() => storageService.uploadProductImage(imageFile, editingProduct.id));
+      }
+      
+      // Upload additional images
+      const additionalImageUrls: {[key: string]: string} = {};
+      for (const [key, file] of Object.entries(imageFiles)) {
+        if (file) {
+          try {
+            const url = await executeQuery(() => storageService.uploadProductImage(file, `${editingProduct.id}-${key}`));
+            additionalImageUrls[key] = url;
+          } catch (err) {
+            console.error(`Failed to upload ${key}:`, err);
+            additionalImageUrls[key] = formData[key as keyof typeof formData] as string;
+          }
+        } else {
+          additionalImageUrls[key] = formData[key as keyof typeof formData] as string;
+        }
+      }
+      
+      await executeQuery(() => productService.updateProduct(editingProduct.id, {
+        name: formData.name,
+        category: formData.category,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        description: formData.description,
+        image: imageUrl,
+        image2: additionalImageUrls.image2,
+        image3: additionalImageUrls.image3,
+        image4: additionalImageUrls.image4,
+        image5: additionalImageUrls.image5,
+        detailed_description: formData.detailed_description,
+        features: formData.features,
+        specifications: formData.specifications,
+        engraving_available: formData.engraving_available,
+        engraving_price: formData.engraving_available ? parseFloat(formData.engraving_price) || 0 : null,
+        warranty: formData.warranty,
+        installation_included: formData.installation_included,
+        status: parseInt(formData.stock) === 0 ? 'Out of Stock' : 'Active'
+      }));
+      
+      toast({
+        title: "Product Updated",
+        description: `${formData.name} has been updated successfully.`,
+      });
+      
+      setIsEditDialogOpen(false);
+      setImageFile(null);
+      setImagePreview('');
+      setImageFiles({
+        image2: null,
+        image3: null,
+        image4: null,
+        image5: null
+      });
+      setImagePreviews({
+        image2: '',
+        image3: '',
+        image4: '',
+        image5: ''
+      });
+      loadProducts();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update product.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAdd = async () => {
+    try {
+      let imageUrl = formData.image;
+      
+      if (imageFile) {
+        try {
+          console.log('Starting image upload...');
+          imageUrl = await storageService.uploadProductImage(imageFile);
+          console.log('Image uploaded successfully:', imageUrl);
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          toast({
+            title: "Image Upload Failed",
+            description: "Product will be saved without image. You can edit it later to add an image.",
+            variant: "destructive"
+          });
+          imageUrl = '';
+        }
+      }
+      
+      // Upload additional images
+      const additionalImageUrls: {[key: string]: string} = {};
+      for (const [key, file] of Object.entries(imageFiles)) {
+        if (file) {
+          try {
+            const url = await storageService.uploadProductImage(file, `new-${key}`);
+            additionalImageUrls[key] = url;
+          } catch (err) {
+            console.error(`Failed to upload ${key}:`, err);
+            additionalImageUrls[key] = '';
+          }
+        } else {
+          additionalImageUrls[key] = '';
+        }
+      }
+      
+      const productData = {
+        name: formData.name,
+        category: formData.category,
+        price: parseFloat(formData.price) || 0,
+        stock: parseInt(formData.stock) || 0,
+        description: formData.description,
+        image: imageUrl,
+        image2: additionalImageUrls.image2,
+        image3: additionalImageUrls.image3,
+        image4: additionalImageUrls.image4,
+        image5: additionalImageUrls.image5,
+        detailed_description: formData.detailed_description,
+        features: formData.features,
+        specifications: formData.specifications,
+        engraving_available: formData.engraving_available,
+        engraving_price: formData.engraving_available ? parseFloat(formData.engraving_price) || 0 : null,
+        warranty: formData.warranty,
+        installation_included: formData.installation_included,
+        status: parseInt(formData.stock) === 0 ? 'Out of Stock' : 'Active'
+      };
+      
+      await executeQuery(() => productService.createProduct(productData));
+      
+      toast({
+        title: "Product Added",
+        description: `${formData.name} has been added successfully.`,
+      });
+      
+      setIsAddDialogOpen(false);
+      setFormData({ 
+        name: '', category: '', price: '', stock: '', description: '', image: '', image2: '', image3: '', image4: '', image5: '',
+        detailed_description: '', features: '', specifications: '', engraving_available: false,
+        engraving_price: '', warranty: '', installation_included: false
+      });
+      setImageFile(null);
+      setImagePreview('');
+      loadProducts();
+    } catch (err) {
+      console.error('Add product error:', err);
+      toast({
+        title: "Error",
+        description: `Failed to add product: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    try {
+      await executeQuery(() => productService.deleteProduct(productId));
+      toast({
+        title: "Product Deleted",
+        description: "Product has been deleted successfully.",
+      });
+      loadProducts();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to delete product.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -135,18 +541,28 @@ const AdminProducts = () => {
                   <span>Add Product</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Add New Product</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-4 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Product Name</Label>
-                    <Input id="name" placeholder="Enter product name" />
+                    <Input 
+                      id="name" 
+                      placeholder="Enter product name" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">Category</Label>
-                    <select id="category" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                    <select 
+                      id="category" 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                      value={formData.category}
+                      onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    >
                       <option value="">Select category</option>
                       <option value="Smart Switch">Smart Switch</option>
                       <option value="Smart Curtain">Smart Curtain</option>
@@ -156,35 +572,239 @@ const AdminProducts = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price">Price (BDT)</Label>
-                    <Input id="price" type="number" placeholder="0" />
+                    <Input 
+                      id="price" 
+                      type="number" 
+                      placeholder="0" 
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="stock">Stock Quantity</Label>
-                    <Input id="stock" type="number" placeholder="0" />
+                    <Input 
+                      id="stock" 
+                      type="number" 
+                      placeholder="0" 
+                      value={formData.stock}
+                      onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                    />
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" placeholder="Product description" />
+                    <Label htmlFor="description">Short Description</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Brief product description" 
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      rows={2}
+                    />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image2">Image 2</Label>
+                    <Input 
+                      id="image2" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleMultipleImageChange(e, 'image2')}
+                    />
+                    {imagePreviews.image2 && (
+                      <img src={imagePreviews.image2} alt="Preview 2" className="w-20 h-20 object-cover rounded" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image3">Image 3</Label>
+                    <Input 
+                      id="image3" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleMultipleImageChange(e, 'image3')}
+                    />
+                    {imagePreviews.image3 && (
+                      <img src={imagePreviews.image3} alt="Preview 3" className="w-20 h-20 object-cover rounded" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image4">Image 4</Label>
+                    <Input 
+                      id="image4" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleMultipleImageChange(e, 'image4')}
+                    />
+                    {imagePreviews.image4 && (
+                      <img src={imagePreviews.image4} alt="Preview 4" className="w-20 h-20 object-cover rounded" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image5">Image 5</Label>
+                    <Input 
+                      id="image5" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => handleMultipleImageChange(e, 'image5')}
+                    />
+                    {imagePreviews.image5 && (
+                      <img src={imagePreviews.image5} alt="Preview 5" className="w-20 h-20 object-cover rounded" />
+                    )}
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <Label htmlFor="detailed_description">Detailed Description</Label>
+                    <Textarea 
+                      id="detailed_description" 
+                      placeholder="Detailed product description for modal" 
+                      value={formData.detailed_description}
+                      onChange={(e) => setFormData({...formData, detailed_description: e.target.value})}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="features">Features</Label>
+                    <Textarea 
+                      id="features" 
+                      placeholder="Key features (one per line)" 
+                      value={formData.features}
+                      onChange={(e) => setFormData({...formData, features: e.target.value})}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="specifications">Specifications</Label>
+                    <Textarea 
+                      id="specifications" 
+                      placeholder="Technical specifications" 
+                      value={formData.specifications}
+                      onChange={(e) => setFormData({...formData, specifications: e.target.value})}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="warranty">Warranty</Label>
+                    <Input 
+                      id="warranty" 
+                      placeholder="e.g., 1 Year Warranty" 
+                      value={formData.warranty}
+                      onChange={(e) => setFormData({...formData, warranty: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        id="installation_included"
+                        checked={formData.installation_included}
+                        onChange={(e) => setFormData({...formData, installation_included: e.target.checked})}
+                      />
+                      <Label htmlFor="installation_included">Installation Included</Label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        id="engraving_available"
+                        checked={formData.engraving_available}
+                        onChange={(e) => setFormData({...formData, engraving_available: e.target.checked})}
+                      />
+                      <Label htmlFor="engraving_available">Engraving Available</Label>
+                    </div>
+                  </div>
+                  {formData.engraving_available && (
+                    <div className="space-y-2">
+                      <Label htmlFor="engraving_price">Engraving Price (BDT)</Label>
+                      <Input 
+                        id="engraving_price" 
+                        type="number" 
+                        placeholder="0" 
+                        value={formData.engraving_price}
+                        onChange={(e) => setFormData({...formData, engraving_price: e.target.value})}
+                      />
+                    </div>
+                  )}
                   <div className="col-span-2 space-y-2">
                     <Label htmlFor="image">Product Image</Label>
-                    <Input id="image" type="file" accept="image/*" />
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Image URL" 
+                        value={formData.image}
+                        onChange={(e) => {
+                          setFormData({...formData, image: e.target.value});
+                          setImagePreview(e.target.value);
+                        }}
+                        className="flex-1"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowCategoryImages(!showCategoryImages)}
+                        disabled={!formData.category}
+                      >
+                        Gallery
+                      </Button>
+                    </div>
+                    {showCategoryImages && formData.category && categoryImages[formData.category as keyof typeof categoryImages] && (
+                      <div className="grid grid-cols-4 gap-2 p-2 border rounded">
+                        {categoryImages[formData.category as keyof typeof categoryImages].map((imgUrl, index) => (
+                          <img 
+                            key={index}
+                            src={imgUrl} 
+                            alt={`${formData.category} ${index + 1}`}
+                            className="w-16 h-16 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-500"
+                            onClick={() => {
+                              setFormData({...formData, image: imgUrl});
+                              setImagePreview(imgUrl);
+                              setShowCategoryImages(false);
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {imagePreview && (
+                      <div className="mt-2">
+                        <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded" onError={() => setImagePreview('')} />
+                      </div>
+                    )}
+                    <Input 
+                      id="image" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="mt-2"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => setIsAddDialogOpen(false)}>
-                    Add Product
+                  <Button onClick={handleAdd} disabled={loading}>
+                    {loading ? 'Adding...' : 'Add Product'}
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
         </div>
-        {/* Search and Filter */}
-        <Card className="p-6 mb-6">
+        
+        <div className="w-full">
+          <div className="flex border-b mb-6">
+            <button 
+              className="px-4 py-2 border-b-2 border-blue-500 text-blue-600 font-medium"
+              onClick={() => {}}
+            >
+              All Products
+            </button>
+            <button 
+              className="px-4 py-2 text-gray-500 hover:text-gray-700"
+              onClick={() => window.location.href = '/admin/categories'}
+            >
+              Product Categories
+            </button>
+          </div>
+          
+          <div>
+            {/* Search and Filter */}
+            <Card className="p-6 mb-6">
           <div className="flex gap-4 items-center">
             <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -218,6 +838,7 @@ const AdminProducts = () => {
                 <TableHead>Image</TableHead>
                 <TableHead>Product Name</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>Status</TableHead>
@@ -237,14 +858,19 @@ const AdminProducts = () => {
                 <TableRow key={product.id}>
                   <TableCell>
                     <img 
-                      src={product.image} 
+                      src={product.image || '/images/smart_switch/3 gang mechanical.webp'} 
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/images/smart_switch/3 gang mechanical.webp';
+                      }}
                     />
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell className="font-semibold">{product.price}</TableCell>
+                  <TableCell className="text-sm text-gray-600 max-w-xs truncate">{product.description || 'No description'}</TableCell>
+                  <TableCell className="font-semibold">৳{product.price}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(product.status, product.stock)}>
@@ -253,12 +879,30 @@ const AdminProducts = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(product)}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(product.id)} className="bg-red-600 hover:bg-red-700">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -266,6 +910,255 @@ const AdminProducts = () => {
             </TableBody>
           </Table>
         </Card>
+
+
+
+        {/* Edit Product Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Product Name</Label>
+                <Input 
+                  id="edit-name" 
+                  placeholder="Enter product name" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-category">Category</Label>
+                <select 
+                  id="edit-category" 
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                >
+                  <option value="">Select category</option>
+                  <option value="Smart Switch">Smart Switch</option>
+                  <option value="Smart Curtain">Smart Curtain</option>
+                  <option value="Security">Security</option>
+                  <option value="Film">Film</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-price">Price (BDT)</Label>
+                <Input 
+                  id="edit-price" 
+                  type="number" 
+                  placeholder="0" 
+                  value={formData.price}
+                  onChange={(e) => setFormData({...formData, price: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-stock">Stock Quantity</Label>
+                <Input 
+                  id="edit-stock" 
+                  type="number" 
+                  placeholder="0" 
+                  value={formData.stock}
+                  onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="edit-description">Short Description</Label>
+                <Textarea 
+                  id="edit-description" 
+                  placeholder="Brief product description" 
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image2">Image 2</Label>
+                <Input 
+                  id="edit-image2" 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleMultipleImageChange(e, 'image2')}
+                />
+                {(imagePreviews.image2 || formData.image2) && (
+                  <img src={imagePreviews.image2 || formData.image2} alt="Preview 2" className="w-20 h-20 object-cover rounded" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image3">Image 3</Label>
+                <Input 
+                  id="edit-image3" 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleMultipleImageChange(e, 'image3')}
+                />
+                {(imagePreviews.image3 || formData.image3) && (
+                  <img src={imagePreviews.image3 || formData.image3} alt="Preview 3" className="w-20 h-20 object-cover rounded" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image4">Image 4</Label>
+                <Input 
+                  id="edit-image4" 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleMultipleImageChange(e, 'image4')}
+                />
+                {(imagePreviews.image4 || formData.image4) && (
+                  <img src={imagePreviews.image4 || formData.image4} alt="Preview 4" className="w-20 h-20 object-cover rounded" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image5">Image 5</Label>
+                <Input 
+                  id="edit-image5" 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleMultipleImageChange(e, 'image5')}
+                />
+                {(imagePreviews.image5 || formData.image5) && (
+                  <img src={imagePreviews.image5 || formData.image5} alt="Preview 5" className="w-20 h-20 object-cover rounded" />
+                )}
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="edit-detailed_description">Detailed Description</Label>
+                <Textarea 
+                  id="edit-detailed_description" 
+                  placeholder="Detailed product description for modal" 
+                  value={formData.detailed_description}
+                  onChange={(e) => setFormData({...formData, detailed_description: e.target.value})}
+                  rows={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-features">Features</Label>
+                <Textarea 
+                  id="edit-features" 
+                  placeholder="Key features (one per line)" 
+                  value={formData.features}
+                  onChange={(e) => setFormData({...formData, features: e.target.value})}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-specifications">Specifications</Label>
+                <Textarea 
+                  id="edit-specifications" 
+                  placeholder="Technical specifications" 
+                  value={formData.specifications}
+                  onChange={(e) => setFormData({...formData, specifications: e.target.value})}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-warranty">Warranty</Label>
+                <Input 
+                  id="edit-warranty" 
+                  placeholder="e.g., 1 Year Warranty" 
+                  value={formData.warranty}
+                  onChange={(e) => setFormData({...formData, warranty: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="edit-installation_included"
+                    checked={formData.installation_included}
+                    onChange={(e) => setFormData({...formData, installation_included: e.target.checked})}
+                  />
+                  <Label htmlFor="edit-installation_included">Installation Included</Label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="edit-engraving_available"
+                    checked={formData.engraving_available}
+                    onChange={(e) => setFormData({...formData, engraving_available: e.target.checked})}
+                  />
+                  <Label htmlFor="edit-engraving_available">Engraving Available</Label>
+                </div>
+              </div>
+              {formData.engraving_available && (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-engraving_price">Engraving Price (BDT)</Label>
+                  <Input 
+                    id="edit-engraving_price" 
+                    type="number" 
+                    placeholder="0" 
+                    value={formData.engraving_price}
+                    onChange={(e) => setFormData({...formData, engraving_price: e.target.value})}
+                  />
+                </div>
+              )}
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="edit-image">Product Image</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Image URL" 
+                    value={formData.image}
+                    onChange={(e) => {
+                      setFormData({...formData, image: e.target.value});
+                      setImagePreview(e.target.value);
+                    }}
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowCategoryImages(!showCategoryImages)}
+                    disabled={!formData.category}
+                  >
+                    Gallery
+                  </Button>
+                </div>
+                {showCategoryImages && formData.category && categoryImages[formData.category as keyof typeof categoryImages] && (
+                  <div className="grid grid-cols-4 gap-2 p-2 border rounded">
+                    {categoryImages[formData.category as keyof typeof categoryImages].map((imgUrl, index) => (
+                      <img 
+                        key={index}
+                        src={imgUrl} 
+                        alt={`${formData.category} ${index + 1}`}
+                        className="w-16 h-16 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-500"
+                        onClick={() => {
+                          setFormData({...formData, image: imgUrl});
+                          setImagePreview(imgUrl);
+                          setShowCategoryImages(false);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded" />
+                  </div>
+                )}
+                <Input 
+                  id="edit-image" 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={loading}>
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+          </div>
+        </div>
       </main>
     </div>
   );
