@@ -72,25 +72,39 @@ const HeroSlider = () => {
           >
             <div className="relative w-full h-full">
               {slide.video ? (
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to image if video fails
-                    const target = e.target as HTMLVideoElement;
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `<img src="${slide.image}" alt="${slide.alt}" class="w-full h-full object-cover" />`;
-                    }
-                  }}
-                >
-                  <source src={slide.video} type="video/mp4" />
-                  {/* Fallback image if video not supported */}
-                  <img src={slide.image} alt={slide.alt} className="w-full h-full object-cover" />
-                </video>
+                <>
+                  <video
+                    key={slide.id}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover"
+                    style={{ display: 'block' }}
+                    onError={(e) => {
+                      // Video failed to load, fallback handled by image
+                    }}
+                  >
+                    <source src={slide.video} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {/* Fallback image overlay - hidden when video loads */}
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
+                    className="absolute inset-0 w-full h-full object-cover -z-10"
+                    style={{ display: 'none' }}
+                    onLoad={() => {
+                      // Show image if video fails
+                      const video = document.querySelector(`video[src*="${slide.video.split('/').pop()}"]`) as HTMLVideoElement;
+                      if (video && video.readyState === 0) {
+                        (video.nextElementSibling as HTMLImageElement).style.display = 'block';
+                        video.style.display = 'none';
+                      }
+                    }}
+                  />
+                </>
               ) : (
                 <img
                   src={slide.image}
@@ -112,26 +126,26 @@ const HeroSlider = () => {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="container-width px-4 md:px-6">
           <div className="text-center text-black max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 fade-in leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 fade-in leading-tight">
               {slides[currentSlide].headline}
             </h1>
-            <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 max-w-2xl mx-auto opacity-90 fade-in-delay px-4">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 md:mb-8 max-w-2xl mx-auto opacity-90 fade-in-delay px-4">
               {slides[currentSlide].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center fade-in-delay px-4">
-              <Button onClick={scrollToOrder} className="btn-cta w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center fade-in-delay px-4">
+              <Button onClick={scrollToOrder} className="btn-cta w-full sm:w-auto text-sm md:text-base py-2 md:py-3 px-4 md:px-6">
                 Buy Now
               </Button>
               <Button 
                 onClick={() => document.getElementById('specs')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn-cta w-full sm:w-auto"
+                className="btn-cta w-full sm:w-auto text-sm md:text-base py-2 md:py-3 px-4 md:px-6"
               >
                 View Specs
               </Button>
             </div>
             {/* Built for Comfort Badge */}
             <div className="mt-6 md:mt-8 fade-in-delay">
-              <span className="inline-flex items-center px-3 md:px-4 py-2 bg-black/80 backdrop-blur-sm rounded-full text-xs md:text-sm font-medium text-white border border-black">
+              <span className="inline-flex items-center px-2 sm:px-3 md:px-4 py-1.5 md:py-2 bg-black/80 backdrop-blur-sm rounded-full text-xs md:text-sm font-medium text-white border border-black">
                 #BuiltForComfort
               </span>
             </div>

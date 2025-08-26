@@ -60,9 +60,9 @@ const ContactPage = () => {
         {/* Contact Section */}
         <section className="py-12 md:py-16 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
+            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
               {/* Left Column - Info Cards */}
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <Card className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
@@ -114,15 +114,15 @@ const ContactPage = () => {
               </div>
 
               {/* Right Column - Form */}
-              <Card className="p-6 md:p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <Card className="p-4 md:p-6 lg:p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
                 <div className="flex items-center space-x-2 mb-6">
                   <MessageCircle className="w-5 h-5 text-gray-600" />
-                  <h2 className="text-xl font-semibold text-black">Send us a message</h2>
+                  <h2 className="text-lg md:text-xl font-semibold text-black">Send us a message</h2>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                   <div>
-                    <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+                    <Label htmlFor="fullName" className="text-xs md:text-sm font-medium text-gray-700">
                       Full Name *
                     </Label>
                     <Input
@@ -130,7 +130,7 @@ const ContactPage = () => {
                       type="text"
                       value={form.fullName}
                       onChange={(e) => setForm(prev => ({ ...prev, fullName: e.target.value }))}
-                      className={`mt-1 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.fullName ? 'border-red-500' : ''}`}
+                      className={`mt-1 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm md:text-base ${errors.fullName ? 'border-red-500' : ''}`}
                       aria-describedby={errors.fullName ? 'fullName-error' : undefined}
                     />
                     {errors.fullName && (
@@ -199,7 +199,7 @@ const ContactPage = () => {
 
                   <Button
                     type="submit"
-                    className="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                    className="w-full bg-black text-white hover:bg-gray-800 py-2 md:py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-sm md:text-base"
                   >
                     Send Message
                   </Button>
@@ -216,9 +216,9 @@ const ContactPage = () => {
         {/* Promise Banner */}
         <section className="py-12 md:py-16 bg-white">
           <div className="max-w-4xl mx-auto px-4 md:px-6">
-            <Card className="p-6 md:p-8 bg-gray-900 text-white rounded-2xl shadow-xl">
+            <Card className="p-4 md:p-6 lg:p-8 bg-gray-900 text-white rounded-2xl shadow-xl">
               <div className="text-center">
-                <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Our Promise</h3>
+                <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-3 md:mb-4">Our Promise</h3>
                 <p className="text-gray-300 text-base md:text-lg leading-relaxed">
                   We believe in full transparency — your voice matters. Every message is read personally by our team.
                 </p>

@@ -42,101 +42,101 @@ const ThankYou = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Navigation />
-      <div className="flex-1 max-w-3xl mx-auto px-4 py-8 w-full">
-        {/* Success Header */}
-        <div className="text-center mb-8 mt-8">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Thank You!</h1>
-          <p className="text-gray-600">Your order has been placed successfully</p>
+      <div className="flex-1 max-w-4xl mx-auto px-6 py-8 pt-24">
+        {/* Compact Success Header */}
+        <div className="text-center mb-6">
+          <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+          <h1 className="text-2xl font-bold text-black mb-1">Order Confirmed!</h1>
+          <p className="text-gray-700 text-sm">Thank you for your purchase</p>
         </div>
 
-        {/* Order Details */}
-        <Card className="p-6 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Order Details</h2>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Order ID</p>
-              <p className="font-mono font-bold">{orderData.order_number || '#10001'}</p>
-            </div>
-          </div>
-
-          {/* Customer Info */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="font-medium mb-2 flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                Customer Information
-              </h3>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p><strong>Name:</strong> {orderData.customer_name}</p>
-                <p><strong>Email:</strong> {orderData.customer_email}</p>
-                <p><strong>Phone:</strong> {orderData.customer_phone}</p>
+        {/* Compact Order Card */}
+        <Card className="shadow-lg border-0 mb-6">
+          <div className="p-6">
+            {/* Header with Order ID */}
+            <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-black">Order Summary</h2>
+              <div className="bg-green-100 px-3 py-1 rounded-full">
+                <span className="text-sm font-mono font-bold text-green-800">
+                  #{orderData.order_number || '10001'}
+                </span>
               </div>
             </div>
-            <div>
-              <h3 className="font-medium mb-2 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Delivery Address
-              </h3>
-              <p className="text-sm text-gray-600">{orderData.customer_address}</p>
-            </div>
-          </div>
 
-          {/* Payment Method */}
-          <div className="mb-6">
-            <h3 className="font-medium mb-2 flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
-              Payment Method
-            </h3>
-            <p className="text-sm text-gray-600 capitalize">
-              {orderData.payment_method === 'free' ? 'Free Service' : 
-               orderData.payment_method === 'cod' ? 'Cash on Delivery' : 
-               'Online Payment'}
-            </p>
-          </div>
-
-          {/* Order Items */}
-          <div>
-            <h3 className="font-medium mb-4">Order Items</h3>
-            <div className="space-y-3">
-              {orderData.items.map((item: OrderItem, index: number) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{item.product_name}</p>
-                    <p className="text-sm text-gray-500">{item.category}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">৳{(item.price * item.quantity).toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">৳{item.price.toLocaleString()} each</p>
-                  </div>
+            {/* Compact Info Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+              {/* Customer */}
+              <div className="bg-gray-50 p-3 rounded-lg border">
+                <h3 className="font-medium text-sm mb-2 flex items-center gap-1 text-black">
+                  <Package className="w-3 h-3" /> Customer
+                </h3>
+                <div className="text-xs text-gray-800 space-y-1">
+                  <p className="font-medium">{orderData.customer_name}</p>
+                  <p>{orderData.customer_phone}</p>
                 </div>
-              ))}
+              </div>
+              
+              {/* Address */}
+              <div className="bg-gray-50 p-3 rounded-lg border">
+                <h3 className="font-medium text-sm mb-2 flex items-center gap-1 text-black">
+                  <MapPin className="w-3 h-3" /> Delivery
+                </h3>
+                <p className="text-xs text-gray-800 line-clamp-2">{orderData.customer_address}</p>
+              </div>
+              
+              {/* Payment */}
+              <div className="bg-gray-50 p-3 rounded-lg border">
+                <h3 className="font-medium text-sm mb-2 flex items-center gap-1 text-black">
+                  <CreditCard className="w-3 h-3" /> Payment
+                </h3>
+                <p className="text-xs text-gray-800 capitalize">
+                  {orderData.payment_method === 'free' ? 'Free Service' : 
+                   orderData.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Total */}
-          <div className="border-t pt-4 mt-6">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold">Total Amount</span>
-              <span className="text-2xl font-bold text-green-600">
-                {orderData.total_amount > 0 ? `৳${orderData.total_amount.toLocaleString()}` : 'FREE'}
-              </span>
+            {/* Compact Items List */}
+            <div className="mb-4">
+              <h3 className="font-medium text-sm mb-3 text-black">Items Ordered</h3>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {orderData.items.map((item: OrderItem, index: number) => (
+                  <div key={index} className="flex justify-between items-center p-2 bg-white rounded border">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-black">{item.product_name}</p>
+                      <p className="text-xs text-gray-700">{item.category} × {item.quantity}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-sm text-black">৳{(item.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="border-t border-gray-200 pt-3">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-black">Total Amount</span>
+                <span className="text-xl font-bold text-green-600">
+                  {orderData.total_amount > 0 ? `৳${orderData.total_amount.toLocaleString()}` : 'FREE'}
+                </span>
+              </div>
             </div>
           </div>
         </Card>
 
-
-
-        {/* Actions */}
-        <div className="text-center space-x-4">
-          <Link to="/">
-            <Button variant="outline">Continue Shopping</Button>
+        {/* Compact Actions */}
+        <div className="flex justify-center gap-3">
+          <Link to="/#order">
+            <Button variant="outline" size="sm">Continue Shopping</Button>
           </Link>
-          <Link to="/track-order">
-            <Button>Track Order</Button>
+          <Link to={`/track-order?id=${orderData.order_number || '10001'}`}>
+            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+              Track Order
+            </Button>
           </Link>
         </div>
       </div>

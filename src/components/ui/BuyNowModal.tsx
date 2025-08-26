@@ -26,6 +26,8 @@ interface BuyNowModalProps {
     specifications?: string;
     engraving_available?: boolean;
     engraving_price?: number;
+    engraving_image?: string;
+    engraving_text_color?: string;
     warranty?: string;
     installation_included?: boolean;
     image?: string;
@@ -269,6 +271,7 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
               {product.engraving_available && (
                 <EngravingTrigger
                   currentText={engravingText}
+                  productName={product.name}
                   onClick={() => setEngravingModalOpen(true)}
                 />
               )}
@@ -281,6 +284,13 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
                   className="flex-1"
                 >
                   {product.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
+                </Button>
+                <Button
+                  onClick={handleBuyNow}
+                  disabled={loading || product.stock === 0}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {product.stock === 0 ? 'OUT OF STOCK' : 'BUY NOW'}
                 </Button>
               </div>
               
@@ -301,6 +311,9 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
                 open={engravingModalOpen}
                 onOpenChange={setEngravingModalOpen}
                 productImage={allImages[selectedImage] || product.image || ''}
+                engravingImage={product.engraving_image}
+                productName={product.name}
+                engravingTextColor={product.engraving_text_color}
                 initialText={engravingText}
                 onSave={({ text }) => {
                   setEngravingText(text);

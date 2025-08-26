@@ -8,6 +8,7 @@ import BuiltForComfort from "./pages/BuiltForComfort";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import TrackOrderPage from "./pages/TrackOrderPage";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
@@ -21,6 +22,7 @@ import UpdateProductSchema from "./pages/UpdateProductSchema";
 import SeedData from "./pages/SeedData";
 import NotFound from "./pages/NotFound";
 import ThankYou from "./pages/ThankYou";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -36,13 +38,15 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/track-order" element={<TrackOrderPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/customers" element={<AdminCustomers />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/orders" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
+          <Route path="/admin/reports" element={<ProtectedRoute><AdminReports /></ProtectedRoute>} />
+          <Route path="/admin/customers" element={<ProtectedRoute><AdminCustomers /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
           <Route path="/setup-database" element={<SetupDatabase />} />
           <Route path="/setup-storage" element={<SetupStorage />} />
           <Route path="/update-schema" element={<UpdateProductSchema />} />

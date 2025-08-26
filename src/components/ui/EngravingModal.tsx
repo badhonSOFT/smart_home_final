@@ -10,13 +10,16 @@ interface EngravingModalProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   productImage: string;
+  engravingImage?: string;
+  productName?: string;
+  engravingTextColor?: string;
   initialText?: string;
   onSave: (value: { text: string }) => Promise<void> | void;
 }
 
 const EMOJI_GRID = ['★', '♥', '✿', '✓', '☺', '☹', '#', '+', '×', '!', '?', '&', '@', '♪', '♫', '☀', '☽', '♠', '♣', '♦', '♧', '⚡', '✨', '🎉'];
 
-export function EngravingModal({ open, onOpenChange, productImage, initialText = '', onSave }: EngravingModalProps) {
+export function EngravingModal({ open, onOpenChange, productImage, engravingImage, productName = 'Product', engravingTextColor = '#000000', initialText = '', onSave }: EngravingModalProps) {
   const [text, setText] = useState(initialText);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -69,7 +72,7 @@ export function EngravingModal({ open, onOpenChange, productImage, initialText =
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 sm:p-6 border-b">
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Personalize your Switch</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Customize your {productName}</h2>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 Add a personal touch with engraving. Type names, initials, numbers, or even add an emoji.
               </p>
@@ -84,13 +87,17 @@ export function EngravingModal({ open, onOpenChange, productImage, initialText =
           <div className="relative rounded-lg overflow-hidden h-48">
             <div className="relative flex items-center justify-center h-full">
               <img
-                src="/images/engreving_new.png"
+                src={engravingImage || "/images/engreving_new.png"}
                 alt="Product preview"
                 className="max-w-[250px] sm:max-w-[300px] max-h-[160px] sm:max-h-[200px] object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/engreving_new.png';
+                }}
               />
               {text && (
                 <div className="absolute bottom-4 sm:bottom-6 right-20 sm:right-36">
-                  <div className="text-black font-semibold" style={{ fontSize: '12px', textShadow: '2px 2px 4px rgba(255,255,255,0.8)' }}>
+                  <div className="font-semibold" style={{ fontSize: '12px', color: engravingTextColor, textShadow: '2px 2px 4px rgba(255,255,255,0.8)' }}>
                     {text}
                   </div>
                 </div>

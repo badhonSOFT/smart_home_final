@@ -20,7 +20,7 @@ const AdminCategories = () => {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
 
-  const categories = ['Smart Switch', 'Smart Curtain', 'Security', 'Film']
+  const categories = ['Smart Switch', 'Smart Curtain', 'Security', 'PDLC Film']
 
   useEffect(() => {
     loadCategoryImages()

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import NumberFlow from "@number-flow/react";
 import { BuyNowModal } from "@/components/ui/BuyNowModal";
 import { productData } from "@/lib/productData";
-import { ProductListModal } from "@/components/ui/ProductListModal";
+
 import { ServicesModal } from "@/components/ui/ServicesModal";
 import { InstallationModal } from "@/components/ui/InstallationModal";
 import { Input } from "@/components/ui/input";
@@ -71,19 +71,34 @@ const defaultProducts: Product[] = [
 ];
 
 const getCategoryProducts = (dbProducts: any[], categoryImages: any[]) => {
-    const categories = ['Smart Curtain', 'Smart Switch', 'Security', 'Film', 'Services'];
+    const categories = ['Smart Curtain', 'Smart Switch', 'Security', 'PDLC Film', 'Services'];
     return categories.map((category, index) => {
-        const categoryImagesForCategory = categoryImages.filter(img => img.category === category);
+        // Handle both 'Film' and 'PDLC Film' for category images
+        const categoryImagesForCategory = categoryImages.filter(img => 
+            img.category === category || (category === 'PDLC Film' && img.category === 'Film')
+        );
         const firstCategoryImage = categoryImagesForCategory[0];
-        const categoryProducts = dbProducts.filter(p => p.category === category);
+        
+        // Handle both 'Film' and 'PDLC Film' for products
+        const categoryFilter = category === 'PDLC Film' ? ['Film', 'PDLC Film'] : [category];
+        const categoryProducts = dbProducts.filter(p => categoryFilter.includes(p.category));
         const firstProduct = categoryProducts[0];
+        
+        const getImageForCategory = () => {
+            if (category === 'Services') return '/images/services/services.png';
+            if (category === 'Smart Curtain') return firstCategoryImage?.image_url || '/assets/hero-sliding-curtain.jpg';
+            if (category === 'Smart Switch') return firstCategoryImage?.image_url || '/images/smart_switch/3 gang mechanical.webp';
+            if (category === 'Security') return firstCategoryImage?.image_url || '/assets/gallery-1.jpg';
+            if (category === 'PDLC Film') return firstCategoryImage?.image_url || '/assets/window.jpeg';
+            return firstCategoryImage?.image_url || firstProduct?.image || '/images/smart_switch/3 gang mechanical.webp';
+        };
         
         return {
             id: (index + 1).toString(),
             name: category,
             price: category === 'Services' ? 0 : (firstProduct?.price || 0),
             category: category,
-            image: category === 'Services' ? '/images/services/services.png' : (firstCategoryImage?.image_url || firstProduct?.image || '/images/smart_switch/3 gang mechanical.webp'),
+            image: getImageForCategory(),
             color: category === 'Services' ? 'Available' : 'Available'
         };
     });
@@ -101,8 +116,6 @@ function InteractiveCheckout({
     const [cart, setCart] = useState<CartItem[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [productListOpen, setProductListOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const [servicesModalOpen, setServicesModalOpen] = useState(false);
     const [installationModalOpen, setInstallationModalOpen] = useState(false);
@@ -115,6 +128,9 @@ function InteractiveCheckout({
     });
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [orderLoading, setOrderLoading] = useState(false);
+    const [activeCategory, setActiveCategory] = useState('Smart Curtain');
+    const [isManualSelection, setIsManualSelection] = useState(false);
+    const [activeField, setActiveField] = useState('name');
 
     useEffect(() => {
         loadProducts();
@@ -163,8 +179,10 @@ function InteractiveCheckout({
         }
         
         // Always return actual products from database for other categories
+        // Handle both 'Film' and 'PDLC Film' for backward compatibility
+        const categoryFilter = category === 'PDLC Film' ? ['Film', 'PDLC Film'] : [category];
         return dbProducts
-            .filter(p => p.category === category && p.stock > 0)
+            .filter(p => categoryFilter.includes(p.category) && p.stock > 0)
             .map(p => ({
                 id: p.id,
                 name: p.name,
@@ -176,13 +194,13 @@ function InteractiveCheckout({
     };
 
     // Listen for back button event from BuyNowModal
-    useState(() => {
+    useEffect(() => {
         const handleOpenProductList = () => {
-            setProductListOpen(true);
+            // Handle back navigation if needed
         };
         window.addEventListener('openProductList', handleOpenProductList);
         return () => window.removeEventListener('openProductList', handleOpenProductList);
-    });
+    }, []);
 
     const addToCart = (product: Product) => {
         setCart((currentCart) => {
@@ -226,94 +244,263 @@ function InteractiveCheckout({
         0
     );
 
+    const categories = dbProducts.length > 0 ? getCategoryProducts(dbProducts, categoryImages) : products;
+    
+    // Get all products grouped by category
+    const allProductsByCategory = categories.map(category => {
+        const products = getProductsByCategory(category.category);
+        // Debug: Category products loaded
+        return {
+            category: category.category,
+            products: products
+        };
+    });
+
+    // Auto-select category based on scroll position
+    useEffect(() => {
+        const handleScroll = () => {
+            if (isManualSelection) return; // Skip during manual selection
+            
+            const container = document.querySelector('.products-scroll-container');
+            if (!container) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const headerOffset = 140;
+            
+            // Find the category that's currently most visible
+            let visibleCategory = activeCategory;
+            let maxVisibility = 0;
+            
+            allProductsByCategory.forEach(group => {
+                const element = document.getElementById(`category-${group.category.replace(/\s+/g, '-')}`);
+                if (element) {
+                    const elementRect = element.getBoundingClientRect();
+                    const relativeTop = elementRect.top - containerRect.top - headerOffset;
+                    
+                    // Check if this category is in the visible area
+                    if (relativeTop <= 50 && relativeTop > -element.offsetHeight + 100) {
+                        const visibility = Math.max(0, Math.min(100, 100 - Math.abs(relativeTop)));
+                        if (visibility > maxVisibility) {
+                            maxVisibility = visibility;
+                            visibleCategory = group.category;
+                        }
+                    }
+                }
+            });
+            
+            if (visibleCategory !== activeCategory) {
+                setActiveCategory(visibleCategory);
+            }
+        };
+
+        const scrollContainer = document.querySelector('.products-scroll-container');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+            return () => scrollContainer.removeEventListener('scroll', handleScroll);
+        }
+    }, [allProductsByCategory, activeCategory, isManualSelection]);
+
     return (
-        <div className="w-full max-w-7xl mx-auto">
-            <div className="flex gap-8">
-                <div className="flex-1 space-y-4">
-                    {(dbProducts.length > 0 ? getCategoryProducts(dbProducts, categoryImages) : products).map((product) => (
+        <>
+            <div className="w-full max-w-7xl mx-auto min-h-screen flex flex-col lg:flex-row gap-2 lg:gap-6 bg-gradient-to-br from-gray-50 to-white rounded-none lg:rounded-2xl shadow-none lg:shadow-lg overflow-hidden">
+            {/* Left Side - Scrollable Products */}
+            <div className="flex-1 overflow-y-auto products-scroll-container h-[60vh] lg:h-[calc(100vh-200px)] min-h-[400px]">
+                {/* Category Tabs */}
+                <div className="mb-4 lg:mb-6 sticky top-0 lg:top-0 bg-white z-40 pb-3 lg:pb-4 pt-1 lg:pt-2 shadow-sm lg:shadow-none" style={{ top: window.innerWidth < 1024 ? '80px' : '0px' }}>
+                    <div className="grid grid-cols-5 lg:grid-cols-5 gap-1 lg:gap-3 px-3 lg:px-4">
+                        {categories.map((category) => (
+                            <motion.button
+                                key={category.id}
+                                onClick={() => {
+                                    setIsManualSelection(true);
+                                    setActiveCategory(category.category);
+                                    
+                                    setTimeout(() => {
+                                        const targetId = `category-${category.category.replace(/\s+/g, '-')}`;
+                                        const element = document.getElementById(targetId);
+                                        const container = document.querySelector('.products-scroll-container');
+                                        
+                                        if (element && container) {
+                                            const isMobile = window.innerWidth < 1024;
+                                            
+                                            if (isMobile) {
+                                                // Force scroll on mobile
+                                                const rect = element.getBoundingClientRect();
+                                                const containerRect = container.getBoundingClientRect();
+                                                const scrollTop = container.scrollTop + rect.top - containerRect.top - 60;
+                                                container.scrollTop = Math.max(0, scrollTop);
+                                            } else {
+                                                // Desktop scroll with offset
+                                                const containerRect = container.getBoundingClientRect();
+                                                const elementRect = element.getBoundingClientRect();
+                                                const scrollOffset = container.scrollTop + (elementRect.top - containerRect.top) - 180;
+                                                
+                                                container.scrollTo({
+                                                    top: Math.max(0, scrollOffset),
+                                                    behavior: 'smooth'
+                                                });
+                                            }
+                                        }
+                                        
+                                        setTimeout(() => setIsManualSelection(false), 800);
+                                    }, 10);
+                                }}
+                                className={cn(
+                                    "flex flex-col items-center justify-center gap-1 lg:gap-2 p-2 lg:p-4 rounded-lg lg:rounded-xl transition-all duration-300 aspect-square",
+                                    activeCategory === category.category
+                                        ? "bg-blue-100 text-blue-800 border border-blue-200 shadow-md"
+                                        : "bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 hover:shadow-sm"
+                                )}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <div className="w-6 h-6 lg:w-10 lg:h-10 rounded-full overflow-hidden bg-white shadow-sm">
+                                    <img
+                                        src={category.image}
+                                        alt={category.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/images/smart_switch/3 gang mechanical.webp';
+                                        }}
+                                    />
+                                </div>
+                                <span className="text-[10px] lg:text-xs font-medium text-center leading-tight">
+                                    {category.name}
+                                </span>
+                            </motion.button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* All Products by Category */}
+                <div className="pb-8">
+                    {allProductsByCategory.map((categoryGroup, index) => (
+                        <div key={categoryGroup.category} id={`category-${categoryGroup.category.replace(/\s+/g, '-')}`} className="mb-8">
+                            {/* Section Title - Always Show */}
+                            <div className="mb-4 lg:mb-6 px-3 lg:px-4">
+                                <h2 className="text-2xl font-bold text-gray-900 border-b-2 border-green-500 pb-2 inline-block">
+                                    {categoryGroup.category}
+                                </h2>
+                                <p className="text-sm text-gray-600 mt-2">
+                                    {categoryGroup.products.length} products available
+                                </p>
+                            </div>
+
+                            {/* Product Grid or No Products Message */}
+                            {categoryGroup.products.length > 0 ? (
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 px-3 lg:px-4 relative z-0">
+                                    {categoryGroup.products.map((product) => (
                         <motion.div
                             key={product.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className={cn(
-                                "group cursor-pointer",
-                                "p-4 rounded-xl",
-                                "bg-white dark:bg-zinc-900",
-                                "border border-zinc-200 dark:border-zinc-800",
-                                "hover:border-zinc-300 dark:hover:border-zinc-700",
-                                "transition-all duration-200",
-                                "hover:shadow-lg"
-                            )}
+                            className="bg-white rounded-xl lg:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-2 lg:p-3 relative cursor-pointer border border-gray-100 hover:border-green-200 group aspect-square flex flex-col"
+                            whileHover={{ y: -4, scale: 1.02 }}
                             onClick={() => {
-                                if (product.id === "1") {
-                                    setSelectedCategory("Smart Curtain");
-                                    setProductListOpen(true);
-                                } else if (product.id === "2") {
-                                    setSelectedCategory("Smart Switch");
-                                    setProductListOpen(true);
-                                } else if (product.id === "3") {
-                                    setSelectedCategory("Security");
-                                    setProductListOpen(true);
-                                } else if (product.id === "4") {
-                                    setSelectedCategory("Film");
-                                    setProductListOpen(true);
-                                } else if (product.id === "5") {
-                                    setSelectedCategory("Services");
-                                    setProductListOpen(true);
-                                } else {
-                                    setSelectedProduct(product.id);
-                                    setModalOpen(true);
+                                if (product.id === 'service-1') {
+                                    setServicesModalOpen(true);
+                                    return;
                                 }
+                                if (product.id === 'service-2') {
+                                    setInstallationModalOpen(true);
+                                    return;
+                                }
+                                const variant = categoryGroup.products.find(p => p.id === product.id);
+                                setSelectedVariant(variant);
+                                setSelectedProduct(categoryGroup.category === "Smart Curtain" ? "1" : categoryGroup.category === "Smart Switch" ? "2" : "3");
+                                setModalOpen(true);
                             }}
                         >
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className={cn(
-                                        "relative w-12 h-12 rounded-lg overflow-hidden",
-                                        "bg-zinc-100 dark:bg-zinc-800",
-                                        "transition-colors duration-200",
-                                        "group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700"
-                                    )}
-                                >
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                            {/* Badge */}
+                            {product.isSoldOut && (
+                                <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-medium z-10">
+                                    Sold Out
                                 </div>
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">
-                                            {product.name}
-                                        </h3>
-                                        <span className="px-2 py-0.5 text-xs rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                                            {product.category}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-                                        <span>{product.color}</span>
-                                    </div>
-                                </div>
+                            )}
+                            
+                            {/* Product Image */}
+                            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg lg:rounded-xl overflow-hidden group-hover:from-green-50 group-hover:to-green-100 transition-all duration-300 p-1 lg:p-2 mb-1 lg:mb-2">
+                                <img
+                                    src={product.imageUrl}
+                                    alt={product.name}
+                                    className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = '/images/smart_switch/3 gang mechanical.webp';
+                                    }}
+                                />
                             </div>
-                        </motion.div>
+                            
+                            {/* Product Info */}
+                            <div className="space-y-1 mt-auto">
+                                <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+                                    {product.name}
+                                </h3>
+                                <p className="text-green-600 text-xs font-bold">
+                                    {typeof product.price === 'string' ? product.price : `৳${product.price}`}
+                                </p>
+                            </div>
+                            
+                            {/* Add Button */}
+                            <motion.button
+                                className="absolute bottom-2 right-2 w-6 h-6 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                whileHover={{ scale: 1.15 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (product.id === 'service-1') {
+                                        setServicesModalOpen(true);
+                                        return;
+                                    }
+                                    if (product.id === 'service-2') {
+                                        setInstallationModalOpen(true);
+                                        return;
+                                    }
+                                    const cartItem: CartItem = {
+                                        id: product.id,
+                                        name: product.name,
+                                        price: parseInt(product.price.toString().replace(/[^0-9]/g, '')) || 0,
+                                        category: product.gangType || 'Product',
+                                        image: product.imageUrl,
+                                        color: product.gangType || 'Default',
+                                        quantity: 1
+                                    };
+                                    addToCart(cartItem);
+                                    toast({
+                                        title: "Added to Cart",
+                                        description: `${product.name} has been added to your cart.`,
+                                    });
+                                }}
+                            >
+                                +
+                            </motion.button>
+                                    </motion.div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="px-4 py-8 text-center text-gray-500">
+                                    <p>No products available in this category</p>
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </div>
+            </div>
 
-                {/* Cart Sidebar / Checkout */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={cn(
-                        "w-[480px] flex flex-col",
-                        "p-6 rounded-xl",
-                        "bg-white dark:bg-zinc-900",
-                        "border border-zinc-200 dark:border-zinc-800",
-                        "sticky top-4",
-                        "max-h-[40rem]",
-                        "shadow-lg"
-                    )}
-                >
+            {/* Right Side - Fixed Cart */}
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                    "w-full lg:w-[480px] flex flex-col lg:sticky lg:top-6",
+                    "p-4 md:p-6 rounded-xl",
+                    "bg-white dark:bg-zinc-900",
+                    "border border-zinc-200 dark:border-zinc-800",
+                    "shadow-lg"
+                )}
+                style={{ height: 'auto', minHeight: '400px', maxHeight: 'calc(100vh - 200px)' }}
+            >
                     {showCheckout ? (
                         <div className="h-full flex flex-col">
                             <div className="flex items-center gap-3 mb-4">
@@ -332,7 +519,7 @@ function InteractiveCheckout({
                                 Checkout
                             </h2>
                             
-                            <div className="flex-1 overflow-y-auto -mx-4 px-4">
+                            <div className="flex-1 overflow-y-auto -mx-4 px-4" style={{ scrollBehavior: 'auto' }}>
                                 <form onSubmit={async (e) => {
                                     e.preventDefault();
                                     setOrderLoading(true);
@@ -371,9 +558,19 @@ function InteractiveCheckout({
                                         <Input
                                             id="name"
                                             value={formData.name}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({ ...prev, name: e.target.value }));
+                                                if (e.target.value.trim() && activeField === 'name') {
+                                                    setTimeout(() => {
+                                                        setActiveField('email');
+                                                        document.getElementById('email')?.focus();
+                                                    }, 100);
+                                                }
+                                            }}
                                             required
                                             className="mt-1"
+                                            autoFocus
+                                            onFocus={() => setActiveField('name')}
                                         />
                                     </div>
                                     
@@ -383,9 +580,19 @@ function InteractiveCheckout({
                                             id="email"
                                             type="email"
                                             value={formData.email}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({ ...prev, email: e.target.value }));
+                                                if (e.target.value.includes('@') && e.target.value.includes('.') && activeField === 'email') {
+                                                    setTimeout(() => {
+                                                        setActiveField('phone');
+                                                        document.getElementById('phone')?.focus();
+                                                    }, 100);
+                                                }
+                                            }}
                                             required
                                             className="mt-1"
+                                            disabled={!formData.name.trim()}
+                                            onFocus={() => setActiveField('email')}
                                         />
                                     </div>
                                     
@@ -394,9 +601,19 @@ function InteractiveCheckout({
                                         <Input
                                             id="phone"
                                             value={formData.phone}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                                            onChange={(e) => {
+                                                setFormData(prev => ({ ...prev, phone: e.target.value }));
+                                                if (e.target.value.length >= 10 && activeField === 'phone') {
+                                                    setTimeout(() => {
+                                                        setActiveField('address');
+                                                        document.getElementById('address')?.focus();
+                                                    }, 100);
+                                                }
+                                            }}
                                             required
                                             className="mt-1"
+                                            disabled={!formData.email.includes('@') || !formData.email.includes('.')}
+                                            onFocus={() => setActiveField('phone')}
                                         />
                                     </div>
                                     
@@ -408,6 +625,8 @@ function InteractiveCheckout({
                                             onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                                             required
                                             className="mt-1"
+                                            disabled={formData.phone.length < 10}
+                                            onFocus={() => setActiveField('address')}
                                         />
                                     </div>
 
@@ -644,70 +863,8 @@ function InteractiveCheckout({
                             </motion.div>
                         </>
                     )}
-                </motion.div>
+            </motion.div>
             </div>
-            
-            {/* Product List Modal */}
-            <ProductListModal
-                open={productListOpen}
-                onOpenChange={(open) => {
-                    setProductListOpen(open);
-                    if (!open) {
-                        // Add slight delay to show the underlying modal
-                        setTimeout(() => {}, 100);
-                    }
-                }}
-                title={`${selectedCategory} Products`}
-                products={getProductsByCategory(selectedCategory)}
-                onProductClick={(productId) => {
-                    if (productId === 'service-1') {
-                        // Open services modal for consultancy
-                        setServicesModalOpen(true);
-                        setProductListOpen(false);
-                        return;
-                    }
-                    
-                    if (productId === 'service-2') {
-                        // Open installation modal
-                        setInstallationModalOpen(true);
-                        setProductListOpen(false);
-                        return;
-                    }
-                    
-                    const productList = getProductsByCategory(selectedCategory);
-                    const variant = productList.find(p => p.id === productId);
-                    setSelectedVariant(variant);
-                    setProductListOpen(false);
-                    setSelectedProduct(
-                        selectedCategory === "Smart Curtain" ? "1" :
-                        selectedCategory === "Smart Switch" ? "2" : "3"
-                    );
-                    setModalOpen(true);
-                }}
-                onAddToCart={(product) => {
-                    if (product.id === 'service-1') {
-                        // Open services modal for service selection
-                        setServicesModalOpen(true);
-                        setProductListOpen(false);
-                        return;
-                    }
-                    
-                    const cartItem: CartItem = {
-                        id: product.id,
-                        name: product.name,
-                        price: parseInt(product.price.replace(/[^0-9]/g, '')) || 0,
-                        category: product.gangType || 'Product',
-                        image: product.imageUrl,
-                        color: product.gangType || 'Default',
-                        quantity: 1
-                    };
-                    addToCart(cartItem);
-                    toast({
-                        title: "Added to Cart",
-                        description: `${product.name} has been added to your cart.`,
-                    });
-                }}
-            />
             
             {/* Buy Now Modal */}
             {selectedProduct && selectedVariant && (
@@ -730,6 +887,8 @@ function InteractiveCheckout({
                         specifications: dbProducts.find(p => p.id === selectedVariant.id)?.specifications || '',
                         engraving_available: dbProducts.find(p => p.id === selectedVariant.id)?.engraving_available || false,
                         engraving_price: dbProducts.find(p => p.id === selectedVariant.id)?.engraving_price || 0,
+                        engraving_image: dbProducts.find(p => p.id === selectedVariant.id)?.engraving_image || '',
+                        engraving_text_color: dbProducts.find(p => p.id === selectedVariant.id)?.engraving_text_color || '#000000',
                         warranty: dbProducts.find(p => p.id === selectedVariant.id)?.warranty || '',
                         installation_included: dbProducts.find(p => p.id === selectedVariant.id)?.installation_included || false,
                         image: selectedVariant.imageUrl,
@@ -767,10 +926,42 @@ function InteractiveCheckout({
                         }
                     }}
                     onBuyNow={async (payload) => {
-                        console.log('Buy now:', payload);
+                        if (selectedVariant) {
+                            // Calculate price with engraving
+                            const basePrice = parseInt(selectedVariant.price.replace(/[^0-9]/g, ''));
+                            const productData = dbProducts.find(p => p.id === selectedVariant.id);
+                            const engravingPrice = payload.engravingText && productData?.engraving_price ? productData.engraving_price : 0;
+                            const totalPrice = basePrice + engravingPrice;
+                            
+                            // Create cart item for buy now
+                            const cartItem: CartItem = {
+                                id: selectedVariant.id,
+                                name: payload.engravingText ? `${selectedVariant.name} (Engraved: "${payload.engravingText}")` : selectedVariant.name,
+                                price: totalPrice,
+                                category: selectedVariant.gangType || 'Product',
+                                image: selectedVariant.imageUrl,
+                                color: selectedVariant.gangType || 'Default',
+                                quantity: payload.quantity || 1
+                            };
+                            
+                            // Clear cart and add this item
+                            setCart([cartItem]);
+                            
+                            // Close modal and go to checkout
+                            setModalOpen(false);
+                            setShowCheckout(true);
+                            
+                            toast({
+                                title: "Proceeding to Checkout",
+                                description: `${cartItem.name} added for immediate purchase.`,
+                            });
+                        }
                     }}
                     onToggleFavorite={() => {
-                        console.log('Toggle favorite');
+                        toast({
+                            title: "Added to Favorites",
+                            description: "Product added to your favorites list.",
+                        });
                     }}
                 />
             )}
@@ -781,7 +972,6 @@ function InteractiveCheckout({
                 onOpenChange={setServicesModalOpen}
                 onBack={() => {
                     setServicesModalOpen(false);
-                    setProductListOpen(true);
                 }}
                 onAddToCart={(cartItem) => {
                     addToCart(cartItem);
@@ -798,7 +988,6 @@ function InteractiveCheckout({
                 onOpenChange={setInstallationModalOpen}
                 onBack={() => {
                     setInstallationModalOpen(false);
-                    setProductListOpen(true);
                 }}
                 onAddToCart={(cartItem) => {
                     addToCart(cartItem);
@@ -808,9 +997,7 @@ function InteractiveCheckout({
                     });
                 }}
             />
-            
-
-        </div>
+        </>
     );
 }
 

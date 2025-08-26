@@ -8,6 +8,8 @@ export interface Product {
   stock: number
   description?: string
   image?: string
+  engraving_image?: string
+  engraving_text_color?: string
   status: string
   created_at?: string
   updated_at?: string

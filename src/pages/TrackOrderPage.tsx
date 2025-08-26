@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, MapPin, Loader2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -6,8 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useSupabase, orderService } from '@/supabase';
 
 const TrackOrderPage = () => {
+  const [searchParams] = useSearchParams();
+  const { executeQuery } = useSupabase();
   const [searchQuery, setSearchQuery] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +46,14 @@ const TrackOrderPage = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    
+    // Auto-search if order ID is provided in URL
+    const orderId = searchParams.get('id');
+    if (orderId) {
+      setSearchQuery(orderId);
+      handleSearchWithQuery(orderId);
+    }
+  }, [searchParams]);
 
   const validateInput = (query) => {
     if (!query.trim()) return false;
@@ -52,27 +63,31 @@ const TrackOrderPage = () => {
     return isOrderId || isPhoneNumber;
   };
 
-  const handleSearch = async () => {
+  const handleSearchWithQuery = async (query) => {
     setError('');
     setHasSearched(true);
     
-    if (!validateInput(searchQuery)) {
-      setError('Please enter a valid Order ID (6 digits) or 11-digit phone number.');
+    if (!validateInput(query)) {
+      setError('Please enter a valid Order ID or 11-digit phone number.');
       setOrders([]);
       return;
     }
 
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      const results = mockOrders.filter(order => 
-        order.id === searchQuery || order.phone === searchQuery
-      );
-      setOrders(results);
+    try {
+      const results = await executeQuery(() => orderService.searchOrders(query));
+      setOrders(results || []);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Failed to search orders. Please try again.');
+      setOrders([]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
+
+  const handleSearch = () => handleSearchWithQuery(searchQuery);
 
   const getStatusBadgeColor = (status) => {
     switch (status.toLowerCase()) {
@@ -165,53 +180,67 @@ const TrackOrderPage = () => {
                           {/* Header */}
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                              <h3 className="text-xl font-bold text-black">{order.customerName}</h3>
-                              <p className="text-gray-600">Order #{order.id}</p>
+                              <h3 className="text-xl font-bold text-black">{order.customer_name}</h3>
+                              <p className="text-gray-600">Order #{order.order_number}</p>
                             </div>
                           </div>
 
                           {/* Status Row */}
                           <div className="flex flex-wrap gap-3">
                             <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-600">Order Status:</span>
-                              <Badge className={`${getStatusBadgeColor(order.orderStatus)} border`}>
-                                {order.orderStatus}
+                              <span className="text-sm text-gray-600">Status:</span>
+                              <Badge className={`${getStatusBadgeColor(order.status)} border`}>
+                                {order.status}
                               </Badge>
                             </div>
                             <div className="flex items-center space-x-2">
                               <span className="text-sm text-gray-600">Payment:</span>
-                              <Badge className={`${getStatusBadgeColor(order.paymentStatus)} border`}>
-                                {order.paymentStatus}
+                              <Badge className={`${getStatusBadgeColor(order.payment_method)} border`}>
+                                {order.payment_method === 'cod' ? 'Cash on Delivery' : order.payment_method}
                               </Badge>
                             </div>
                           </div>
 
                           {/* Details Grid */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4">
                             <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
                               <p className="text-xs text-gray-500 uppercase tracking-wide">Date</p>
-                              <p className="text-xs md:text-sm font-medium text-gray-900">{order.date}</p>
+                              <p className="text-xs font-medium text-gray-900">
+                                {new Date(order.created_at).toLocaleDateString()}
+                              </p>
                             </div>
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
                               <p className="text-xs text-gray-500 uppercase tracking-wide">Phone</p>
-                              <p className="text-sm font-medium text-gray-900">{order.phone}</p>
+                              <p className="text-xs font-medium text-gray-900">{order.customer_phone}</p>
                             </div>
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                              <p className="text-xs text-gray-500 uppercase tracking-wide">Product</p>
-                              <p className="text-sm font-medium text-gray-900">{order.product}</p>
+                            <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
+                              <p className="text-xs text-gray-500 uppercase tracking-wide">Items</p>
+                              <p className="text-xs font-medium text-gray-900">{order.items.length} item(s)</p>
                             </div>
-                            <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
                               <p className="text-xs text-gray-500 uppercase tracking-wide">Amount</p>
-                              <p className="text-sm font-medium text-gray-900">{order.amount}</p>
+                              <p className="text-xs font-medium text-gray-900">৳{order.total_amount.toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          {/* Items */}
+                          <div className="bg-gray-50 p-2 md:p-3 rounded-lg">
+                            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Order Items</p>
+                            <div className="space-y-1">
+                              {order.items.map((item, idx) => (
+                                <p key={idx} className="text-xs md:text-sm text-gray-900">
+                                  {item.product_name} × {item.quantity}
+                                </p>
+                              ))}
                             </div>
                           </div>
 
                           {/* Address */}
-                          <div className="flex items-start space-x-2 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-start space-x-2 p-2 md:p-3 bg-gray-50 rounded-lg">
                             <MapPin className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" />
                             <div>
                               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Delivery Address</p>
-                              <p className="text-sm text-gray-900">{order.address}</p>
+                              <p className="text-xs md:text-sm text-gray-900">{order.customer_address}</p>
                             </div>
                           </div>
                         </div>

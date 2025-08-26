@@ -3,10 +3,18 @@ import { Edit3 } from 'lucide-react';
 
 interface EngravingTriggerProps {
   currentText?: string;
+  productName?: string;
   onClick: () => void;
 }
 
-export function EngravingTrigger({ currentText, onClick }: EngravingTriggerProps) {
+export function EngravingTrigger({ currentText, productName = 'Product', onClick }: EngravingTriggerProps) {
+  const getCustomizeText = () => {
+    if (productName.toLowerCase().includes('switch')) return 'Customize your switch';
+    if (productName.toLowerCase().includes('curtain')) return 'Customize your curtain';
+    if (productName.toLowerCase().includes('security')) return 'Customize your security';
+    if (productName.toLowerCase().includes('film')) return 'Customize your film';
+    return 'Customize your product';
+  };
   return (
     <Button
       variant="outline"
@@ -20,7 +28,7 @@ export function EngravingTrigger({ currentText, onClick }: EngravingTriggerProps
           <span className="text-xs text-gray-600">"{currentText}"</span>
         </div>
       ) : (
-        <span className="font-medium">✨ Personalize with Engraving</span>
+        <span className="font-medium">✨ {getCustomizeText()}</span>
       )}
     </Button>
   );

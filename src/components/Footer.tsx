@@ -38,8 +38,8 @@ const Footer = () => {
 
   return (
     <footer className="bg-gray-100 text-gray-900">
-      <div className="container-width px-4 md:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container-width px-4 md:px-6 py-8 md:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {/* Left: Logo & Brand */}
           <div className="space-y-4">
             <div>
@@ -186,13 +186,13 @@ const Footer = () => {
         </div>
         
         {/* Payment Methods */}
-        <div className="mt-8 pt-6">
+        <div className="mt-6 md:mt-8 pt-4 md:pt-6">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-3">We Accept</p>
+            <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">We Accept</p>
             <img 
               src="/src/assets/footer/payment.png" 
               alt="Payment methods - bKash, Nagad, Visa, Mastercard" 
-              className="mx-auto h-6 md:h-10 max-w-full"
+              className="mx-auto h-5 md:h-6 lg:h-10 max-w-full"
             />
           </div>
         </div>
@@ -200,9 +200,9 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-gray-300">
-        <div className="container-width px-4 md:px-6 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-            <p>© 2025 Curtain Luxe. All rights reserved.</p>
+        <div className="container-width px-4 md:px-6 py-3 md:py-4">
+          <div className="flex flex-col md:flex-row justify-between items-center text-xs md:text-sm text-gray-600 space-y-2 md:space-y-0">
+            <p className="text-center md:text-left">© 2025 Curtain Luxe. All rights reserved.</p>
             <a 
               href="https://sohub.com.bd" 
               target="_blank" 

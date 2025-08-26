@@ -1,7 +1,6 @@
 import { InteractiveCheckout } from '@/components/ui/interactive-checkout';
 
 const OrderSection = () => {
-
   return (
     <section 
       id="order" 
