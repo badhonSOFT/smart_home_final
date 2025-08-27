@@ -16,7 +16,7 @@ const Navigation = () => {
       
       // Check which section is currently visible
       if (location.pathname === '/') {
-        const sections = ['hero', 'specs', 'gallery', 'compare', 'faq'];
+        const sections = ['hero', 'specs', 'sohub-protect', 'gallery', 'faq'];
         const currentSection = sections.find(section => {
           const element = document.getElementById(section);
           if (element) {
@@ -84,20 +84,20 @@ const Navigation = () => {
               Specs
             </button>
             <button 
+              onClick={() => handleNavigation('sohub-protect')}
+              className={`transition-colors font-medium hover:text-gray-900 ${
+                activeSection === 'sohub-protect' ? 'text-black font-bold' : 'text-gray-600'
+              }`}
+            >
+              Sohub Protect
+            </button>
+            <button 
               onClick={() => handleNavigation('gallery')}
               className={`transition-colors font-medium hover:text-gray-900 ${
                 activeSection === 'gallery' ? 'text-black font-bold' : 'text-gray-600'
               }`}
             >
               Gallery
-            </button>
-            <button 
-              onClick={() => handleNavigation('compare')}
-              className={`transition-colors font-medium hover:text-gray-900 ${
-                activeSection === 'compare' ? 'text-black font-bold' : 'text-gray-600'
-              }`}
-            >
-              Compare
             </button>
             <button 
               onClick={() => handleNavigation('faq')}
@@ -122,7 +122,7 @@ const Navigation = () => {
             onClick={() => handleNavigation('order')}
             className="hidden md:block px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
           >
-            Buy Now
+            Build/Buy Now
           </Button>
 
           {/* Mobile Menu Button */}
@@ -147,16 +147,16 @@ const Navigation = () => {
                 Specs
               </button>
               <button 
+                onClick={() => handleNavigation('sohub-protect')}
+                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
+              >
+                Sohub Protect
+              </button>
+              <button 
                 onClick={() => handleNavigation('gallery')}
                 className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
               >
                 Gallery
-              </button>
-              <button 
-                onClick={() => handleNavigation('compare')}
-                className="block w-full text-left py-2 text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Compare
               </button>
               <button 
                 onClick={() => handleNavigation('faq')}
@@ -177,7 +177,7 @@ const Navigation = () => {
                 onClick={() => handleNavigation('order')}
                 className="w-full mt-4 px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
               >
-                Buy Now
+                Build/Buy Now
               </Button>
             </div>
           </div>

@@ -7,7 +7,7 @@ export const storageService = {
       const fileName = `${productId || Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `products/${fileName}`
 
-      console.log('Uploading file:', fileName, 'Size:', file.size)
+      console.log('Uploading file:', fileName.replace(/[^a-zA-Z0-9.-]/g, ''), 'Size:', file.size)
 
       const { data, error } = await supabase.storage
         .from('product-images')
@@ -17,20 +17,20 @@ export const storageService = {
         })
 
       if (error) {
-        console.error('Storage upload error:', error)
+        console.error('Storage upload error:', JSON.stringify(error, null, 2))
         throw new Error(`Upload failed: ${error.message}`)
       }
 
-      console.log('Upload successful:', data)
+      console.log('Upload successful:', JSON.stringify(data, null, 2))
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath)
 
-      console.log('Public URL:', publicUrl)
+      console.log('Public URL:', publicUrl.replace(/[^a-zA-Z0-9:/.?&=-]/g, ''))
       return publicUrl
     } catch (error) {
-      console.error('Upload service error:', error)
+      console.error('Upload service error:', JSON.stringify(error, null, 2))
       throw error
     }
   },

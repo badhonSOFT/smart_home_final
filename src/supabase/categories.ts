@@ -24,19 +24,19 @@ export const categoryService = {
       
       const { data, error } = await query
       if (error) {
-        console.error('Get category images error:', error)
+        console.error('Get category images error:', JSON.stringify(error, null, 2))
         throw new Error(`Failed to fetch category images: ${error.message}`)
       }
       return data || []
     } catch (error) {
-      console.error('Category service error:', error)
+      console.error('Category service error:', JSON.stringify(error, null, 2))
       throw error
     }
   },
 
   async addCategoryImage(categoryImage: Omit<CategoryImage, 'id' | 'created_at'>) {
     try {
-      console.log('Adding category image:', categoryImage)
+      console.log('Adding category image:', JSON.stringify(categoryImage, null, 2))
       const { data, error } = await supabase
         .from('category_images')
         .insert([categoryImage])
@@ -44,12 +44,12 @@ export const categoryService = {
         .single()
       
       if (error) {
-        console.error('Insert category image error:', error)
+        console.error('Insert category image error:', JSON.stringify(error, null, 2))
         throw new Error(`Failed to add category image: ${error.message}`)
       }
       return data
     } catch (error) {
-      console.error('Add category image error:', error)
+      console.error('Add category image error:', JSON.stringify(error, null, 2))
       throw error
     }
   },
@@ -62,12 +62,12 @@ export const categoryService = {
         .eq('id', id)
       
       if (error) {
-        console.error('Delete category image error:', error)
+        console.error('Delete category image error:', JSON.stringify(error, null, 2))
         throw new Error(`Failed to delete category image: ${error.message}`)
       }
       return true
     } catch (error) {
-      console.error('Delete category image error:', error)
+      console.error('Delete category image error:', JSON.stringify(error, null, 2))
       throw error
     }
   }

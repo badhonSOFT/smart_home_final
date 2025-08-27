@@ -38,10 +38,12 @@ export const productService = {
   },
 
   async updateProduct(id: string, productData: Partial<Product>) {
+    // Sanitize ID to prevent injection
+    const sanitizedId = id.replace(/[^a-zA-Z0-9-]/g, '');
     const { data, error } = await supabase
       .from('products')
       .update({ ...productData, updated_at: new Date().toISOString() })
-      .eq('id', id)
+      .eq('id', sanitizedId)
       .select()
       .single()
     
@@ -50,10 +52,12 @@ export const productService = {
   },
 
   async deleteProduct(id: string) {
+    // Sanitize ID to prevent injection
+    const sanitizedId = id.replace(/[^a-zA-Z0-9-]/g, '');
     const { error } = await supabase
       .from('products')
       .delete()
-      .eq('id', id)
+      .eq('id', sanitizedId)
     
     if (error) throw error
     return true

@@ -37,10 +37,12 @@ export const userService = {
   },
 
   async updateUser(userId: string, userData: Partial<User>) {
+    // Sanitize ID to prevent injection
+    const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-]/g, '');
     const { data, error } = await supabase
       .from('users')
       .update({ ...userData, updated_at: new Date().toISOString() })
-      .eq('id', userId)
+      .eq('id', sanitizedUserId)
       .select()
       .single();
 
@@ -49,20 +51,24 @@ export const userService = {
   },
 
   async deleteUser(userId: string) {
+    // Sanitize ID to prevent injection
+    const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-]/g, '');
     const { error } = await supabase
       .from('users')
       .delete()
-      .eq('id', userId);
+      .eq('id', sanitizedUserId);
 
     if (error) throw error;
     return true;
   },
 
   async updateLastLogin(userId: string) {
+    // Sanitize ID to prevent injection
+    const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-]/g, '');
     const { error } = await supabase
       .from('users')
       .update({ last_login: new Date().toISOString() })
-      .eq('id', userId);
+      .eq('id', sanitizedUserId);
 
     if (error) throw error;
     return true;

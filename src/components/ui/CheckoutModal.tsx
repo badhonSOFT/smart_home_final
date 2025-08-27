@@ -12,12 +12,24 @@ interface CartItem {
   quantity: number;
 }
 
+interface OrderData {
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  items: CartItem[];
+  total: number;
+  paymentMethod: string;
+}
+
 interface CheckoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   cart: CartItem[];
   totalPrice: number;
-  onConfirmOrder: (orderData: any) => void;
+  onConfirmOrder: (orderData: OrderData) => void;
 }
 
 export function CheckoutModal({ open, onOpenChange, cart, totalPrice, onConfirmOrder }: CheckoutModalProps) {
@@ -43,6 +55,10 @@ export function CheckoutModal({ open, onOpenChange, cart, totalPrice, onConfirmO
       });
       onOpenChange(false);
       setFormData({ name: '', email: '', phone: '', address: '' });
+    } catch (error) {
+      console.error('Order confirmation failed:', JSON.stringify(error, null, 2));
+      // Show error message to user
+      alert('Order failed. Please check your information and try again.');
     } finally {
       setLoading(false);
     }

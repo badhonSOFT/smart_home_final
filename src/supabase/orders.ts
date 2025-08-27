@@ -25,30 +25,40 @@ export interface Order {
 
 export const orderService = {
   async createOrder(orderData: Omit<Order, 'id' | 'created_at' | 'status' | 'order_number'>) {
-    // Save customer data first
-    await customerService.createOrUpdateCustomer({
-      name: orderData.customer_name,
-      email: orderData.customer_email,
-      phone: orderData.customer_phone,
-      address: orderData.customer_address,
-      total_spent: orderData.total_amount
-    });
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([{
+          ...orderData,
+          order_number: `ORD${Date.now()}`,
+          status: 'pending'
+        }])
+        .select()
+        .single();
 
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([{
-        ...orderData,
-        status: 'pending'
-      }])
-      .select()
-      .single();
+      if (error) {
+        console.error('Error creating order:', JSON.stringify(error, null, 2));
+        throw error;
+      }
 
-    if (error) {
-      console.error('Error creating order:', error);
+      // Try to save customer data (non-blocking)
+      try {
+        await customerService.createOrUpdateCustomer({
+          name: orderData.customer_name,
+          email: orderData.customer_email,
+          phone: orderData.customer_phone,
+          address: orderData.customer_address,
+          total_spent: orderData.total_amount
+        });
+      } catch (customerError) {
+        console.warn('Customer save failed, but order was created:', JSON.stringify(customerError, null, 2));
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Order creation failed:', JSON.stringify(error, null, 2));
       throw error;
     }
-
-    return data;
   },
 
   async getOrders() {
@@ -58,7 +68,7 @@ export const orderService = {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error fetching orders:', JSON.stringify(error, null, 2));
       throw error;
     }
 
@@ -74,7 +84,7 @@ export const orderService = {
       .single();
 
     if (error) {
-      console.error('Error updating order status:', error);
+      console.error('Error updating order status:', JSON.stringify(error, null, 2));
       throw error;
     }
 
@@ -82,14 +92,17 @@ export const orderService = {
   },
 
   async searchOrders(query: string) {
+    // Sanitize input to prevent injection
+    const sanitizedQuery = query.replace(/[^a-zA-Z0-9+\-\s]/g, '');
+    
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .or(`order_number.eq.${query},customer_phone.eq.${query}`)
+      .or(`order_number.ilike.%${sanitizedQuery}%,customer_phone.ilike.%${sanitizedQuery}%`)
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error searching orders:', error);
+      console.error('Error searching orders:', JSON.stringify(error, null, 2));
       throw error;
     }
 
@@ -103,7 +116,7 @@ export const orderService = {
       .eq('id', orderId);
 
     if (error) {
-      console.error('Error deleting order:', error);
+      console.error('Error deleting order:', JSON.stringify(error, null, 2));
       throw error;
     }
 
@@ -119,7 +132,7 @@ export const orderService = {
       .single();
 
     if (error) {
-      console.error('Error updating order:', error);
+      console.error('Error updating order:', JSON.stringify(error, null, 2));
       throw error;
     }
 

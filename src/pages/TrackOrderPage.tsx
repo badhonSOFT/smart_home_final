@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useSupabase, orderService } from '@/supabase';
+import { useSupabase } from '@/supabase';
+import { orderService } from '@/supabase/orders';
 
 const TrackOrderPage = () => {
   const [searchParams] = useSearchParams();
@@ -57,8 +58,8 @@ const TrackOrderPage = () => {
 
   const validateInput = (query) => {
     if (!query.trim()) return false;
-    // Check if it's a valid order ID (6 digits) or phone number (11 digits)
-    const isOrderId = /^\d{6}$/.test(query);
+    // Check if it's a valid order ID (starts with ORD) or phone number (11 digits)
+    const isOrderId = /^ORD\d+$/.test(query) || /^\d{6,}$/.test(query);
     const isPhoneNumber = /^\d{11}$/.test(query);
     return isOrderId || isPhoneNumber;
   };
@@ -76,10 +77,10 @@ const TrackOrderPage = () => {
     setLoading(true);
     
     try {
-      const results = await executeQuery(() => orderService.searchOrders(query));
+      const results = await orderService.searchOrders(query);
       setOrders(results || []);
     } catch (err) {
-      console.error('Search error:', err);
+      console.error('Search error:', JSON.stringify(err, null, 2));
       setError('Failed to search orders. Please try again.');
       setOrders([]);
     } finally {

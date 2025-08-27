@@ -848,7 +848,7 @@ const AdminProducts = () => {
             </button>
             <button 
               className="px-4 py-2 text-gray-500 hover:text-gray-700"
-              onClick={() => window.location.href = '/admin/categories'}
+              onClick={() => window.location.assign('/admin/categories')}
             >
               Product Categories
             </button>

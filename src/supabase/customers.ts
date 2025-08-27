@@ -18,7 +18,7 @@ export const customerService = {
     const { data: existingCustomer } = await supabase
       .from('customers')
       .select('*')
-      .or(`email.eq.${customerData.email},phone.eq.${customerData.phone}`)
+      .or(`email.eq."${customerData.email.replace(/[^a-zA-Z0-9@.-]/g, '')}",phone.eq."${customerData.phone.replace(/[^0-9+\-\s]/g, '')}"`)
       .single();
 
     if (existingCustomer) {
@@ -32,7 +32,7 @@ export const customerService = {
           total_spent: (existingCustomer.total_spent || 0) + (customerData.total_spent || 0),
           updated_at: new Date().toISOString()
         })
-        .eq('id', existingCustomer.id)
+        .eq('id', existingCustomer.id.replace(/[^a-zA-Z0-9-]/g, ''))
         .select()
         .single();
 

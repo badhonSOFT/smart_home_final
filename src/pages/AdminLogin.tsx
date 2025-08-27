@@ -18,14 +18,17 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Simple admin credentials check
-    if (formData.username === 'admin' && formData.password === 'demo123') {
+    // Admin credentials check using environment variables
+    const adminUsername = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'demo123';
+    
+    if (formData.username === adminUsername && formData.password === adminPassword) {
       localStorage.setItem('adminLoggedIn', 'true');
       toast({
         title: "Login Successful",
         description: "Welcome to the admin dashboard!",
       });
-      window.location.href = '/admin';
+      window.location.assign('/admin');
     } else {
       toast({
         title: "Login Failed",

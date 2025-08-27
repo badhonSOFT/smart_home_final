@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Eye, Users, TrendingUp, ShoppingBag, Star, Filter, Download, MoreVertical } from 'lucide-react';
+import { Search, Eye, Users, TrendingUp, ShoppingBag, Star, Filter, Download, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AdminNavbar from '@/components/AdminNavbar';
 import { useSupabase, customerService, orderService } from '@/supabase';
+import { quoteService } from '@/supabase/quotes';
 import type { Customer } from '@/supabase/customers';
 
 const AdminCustomers = () => {
@@ -18,6 +19,7 @@ const AdminCustomers = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
   const [customers, setCustomers] = useState<any[]>([]);
   const [customerOrders, setCustomerOrders] = useState<any[]>([]);
+  const [customerQuotes, setCustomerQuotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const AdminCustomers = () => {
       const customersData = Array.from(customerMap.values());
       setCustomers(customersData);
     } catch (err) {
-      console.error('Failed to load customers:', err);
+      console.error('Failed to load customers:', JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
@@ -68,7 +70,17 @@ const AdminCustomers = () => {
       const filteredOrders = orders?.filter(order => order.customer_email === customerEmail) || [];
       setCustomerOrders(filteredOrders);
     } catch (err) {
-      console.error('Failed to load customer orders:', err);
+      console.error('Failed to load customer orders:', JSON.stringify(err, null, 2));
+    }
+  };
+
+  const loadCustomerQuotes = async (customerEmail: string) => {
+    try {
+      const quotes = await executeQuery(() => quoteService.getQuotes());
+      const filteredQuotes = quotes?.filter(quote => quote.customer_email === customerEmail) || [];
+      setCustomerQuotes(filteredQuotes);
+    } catch (err) {
+      console.error('Failed to load customer quotes:', JSON.stringify(err, null, 2));
     }
   };
 
@@ -164,6 +176,16 @@ const AdminCustomers = () => {
           </CardContent>
         </Card>
 
+        {/* Quote Forms Section */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg font-semibold text-gray-900">Quote Forms</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuoteFormsSection executeQuery={executeQuery} />
+          </CardContent>
+        </Card>
+
         {/* Customers Table */}
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
@@ -237,6 +259,7 @@ const AdminCustomers = () => {
                               onClick={() => {
                                 setSelectedCustomer(customer);
                                 loadCustomerOrders(customer.email);
+                                loadCustomerQuotes(customer.email);
                               }}
                             >
                               <Eye className="w-4 h-4" />
@@ -342,6 +365,88 @@ const AdminCustomers = () => {
                                   </div>
                                 </CardContent>
                               </Card>
+
+                              {/* Quotes History */}
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle className="text-lg">Quote Requests</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="space-y-4">
+                                    {customerQuotes.length > 0 ? customerQuotes.map((quote) => (
+                                      <div key={quote.id} className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                                        <div className="flex items-center justify-between mb-3">
+                                          <div className="flex items-center space-x-3">
+                                            <div className="p-2 bg-orange-100 rounded-full">
+                                              <Eye className="w-4 h-4 text-orange-600" />
+                                            </div>
+                                            <div>
+                                              <p className="font-medium text-gray-900">{quote.quote_number}</p>
+                                              <p className="text-sm text-gray-500">{new Date(quote.created_at).toLocaleDateString()}</p>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center space-x-3">
+                                            <span className="font-semibold text-gray-900">৳{quote.total_amount?.toLocaleString()}</span>
+                                            <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                                              {quote.status}
+                                            </Badge>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Customer Details */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 p-3 bg-white/50 rounded">
+                                          <div>
+                                            <p className="text-xs font-medium text-gray-600">Address</p>
+                                            <p className="text-sm text-gray-900">{quote.customer_address || 'Not provided'}</p>
+                                          </div>
+                                          <div>
+                                            <p className="text-xs font-medium text-gray-600">Phone</p>
+                                            <p className="text-sm text-gray-900">{quote.customer_phone}</p>
+                                          </div>
+                                        </div>
+
+                                        {/* Quote Items */}
+                                        <div className="space-y-2">
+                                          <p className="text-sm font-medium text-gray-700">Requested Items:</p>
+                                          <div className="space-y-1">
+                                            {quote.items && Array.isArray(quote.items) ? quote.items.map((item, index) => (
+                                              <div key={index} className="flex justify-between items-center p-2 bg-white/70 rounded text-sm">
+                                                <div>
+                                                  <span className="font-medium">{item.product_name}</span>
+                                                  <span className="text-gray-500 ml-2">({item.category})</span>
+                                                </div>
+                                                <div className="text-right">
+                                                  <span className="text-gray-600">Qty: {item.quantity}</span>
+                                                  <span className="ml-3 font-medium">৳{(item.price * item.quantity).toLocaleString()}</span>
+                                                </div>
+                                              </div>
+                                            )) : (
+                                              <p className="text-sm text-gray-500 italic">No items data available</p>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        {(quote.physical_visit_requested || quote.need_expert_help) && (
+                                          <div className="mt-3 pt-3 border-t border-orange-200 flex gap-2 flex-wrap">
+                                            {quote.physical_visit_requested && (
+                                              <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
+                                                Physical Visit Requested
+                                              </Badge>
+                                            )}
+                                            {quote.need_expert_help && (
+                                              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                                Expert Help Needed
+                                              </Badge>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )) : (
+                                      <p className="text-gray-500 text-center py-4">No quotes found for this customer</p>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
                             </div>
                           </DialogContent>
                         </Dialog>
@@ -352,10 +457,10 @@ const AdminCustomers = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => console.log('Edit customer:', customer.id)}>Edit Customer</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => console.log('Edit customer:', customer.id.replace(/[^a-zA-Z0-9-]/g, ''))}>Edit Customer</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => window.open(`mailto:${customer.email}`)}>Send Email</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => console.log('View orders for:', customer.id)}>View Orders</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600" onClick={() => console.log('Delete customer:', customer.id)}>Delete Customer</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => console.log('View orders for:', customer.id.replace(/[^a-zA-Z0-9-]/g, ''))}>View Orders</DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600" onClick={() => console.log('Delete customer:', customer.id.replace(/[^a-zA-Z0-9-]/g, ''))}>Delete Customer</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -367,6 +472,140 @@ const AdminCustomers = () => {
           </CardContent>
         </Card>
       </main>
+    </div>
+  );
+};
+
+const QuoteFormsSection = ({ executeQuery }: { executeQuery: any }) => {
+  const [allQuotes, setAllQuotes] = useState<any[]>([]);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const quotesPerPage = 5;
+  
+  useEffect(() => {
+    const loadAllQuotes = async () => {
+      try {
+        const quotes = await executeQuery(() => quoteService.getQuotes());
+        setAllQuotes(quotes || []);
+      } catch (err) {
+        console.error('Failed to load quotes:', JSON.stringify(err, null, 2));
+      } finally {
+        setQuotesLoading(false);
+      }
+    };
+    loadAllQuotes();
+  }, [executeQuery]);
+  
+  const totalPages = Math.ceil(allQuotes.length / quotesPerPage);
+  const startIndex = (currentPage - 1) * quotesPerPage;
+  const currentQuotes = allQuotes.slice(startIndex, startIndex + quotesPerPage);
+  
+  if (quotesLoading) return <p className="text-center py-4">Loading quotes...</p>;
+  
+  return (
+    <div className="space-y-4">
+      <div className="space-y-4">
+        {currentQuotes.length > 0 ? currentQuotes.map((quote) => (
+          <div key={quote.id} className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-semibold text-gray-900">{quote.quote_number}</h3>
+                <p className="text-sm text-gray-600">{new Date(quote.created_at).toLocaleDateString()}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-lg text-gray-900">৳{quote.total_amount?.toLocaleString()}</p>
+                <Badge className="bg-orange-100 text-orange-800 border-orange-200">{quote.status}</Badge>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-700">Customer Details</h4>
+                <div className="text-sm space-y-1">
+                  <p><span className="font-medium">Name:</span> {quote.customer_name}</p>
+                  <p><span className="font-medium">Email:</span> {quote.customer_email}</p>
+                  <p><span className="font-medium">Phone:</span> {quote.customer_phone}</p>
+                  <p><span className="font-medium">Address:</span> {quote.customer_address || 'Not provided'}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-700">Quote Items</h4>
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {quote.items && Array.isArray(quote.items) ? quote.items.map((item, index) => (
+                    <div key={index} className="flex justify-between text-sm p-2 bg-white/70 rounded">
+                      <span>{item.product_name} ({item.category})</span>
+                      <span>Qty: {item.quantity} - ৳{(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                  )) : <p className="text-sm text-gray-500">No items data</p>}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 flex-wrap">
+              {quote.physical_visit_requested && (
+                <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
+                  Physical Visit Requested
+                </Badge>
+              )}
+              {quote.need_expert_help && (
+                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                  Expert Help Needed
+                </Badge>
+              )}
+            </div>
+          </div>
+        )) : <p className="text-center py-8 text-gray-500">No quote forms found</p>}
+      </div>
+      
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+          <div className="text-sm text-gray-600">
+            Showing {startIndex + 1} to {Math.min(startIndex + quotesPerPage, allQuotes.length)} of {allQuotes.length} quotes
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="flex items-center space-x-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </Button>
+            
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 p-0 ${
+                    currentPage === page 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0' 
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="flex items-center space-x-1"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

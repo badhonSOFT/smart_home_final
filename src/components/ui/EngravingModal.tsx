@@ -72,9 +72,9 @@ export function EngravingModal({ open, onOpenChange, productImage, engravingImag
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 sm:p-6 border-b">
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Customize your {productName}</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Make it yours.</h2>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                Add a personal touch with engraving. Type names, initials, numbers, or even add an emoji.
+                Engrave names, icons, or room labels on your smart switches. Personalized, professional laser engraving at no extra hassle.
               </p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} className="h-8 w-8 p-0">
@@ -160,7 +160,7 @@ export function EngravingModal({ open, onOpenChange, productImage, engravingImag
             disabled={!isValid || isSaving}
             className="flex-1"
           >
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? 'Personalizing...' : 'Start Personalizing →'}
           </Button>
         </div>
         </div>

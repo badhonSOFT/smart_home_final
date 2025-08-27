@@ -1,6 +1,7 @@
 import Navigation from '@/components/Navigation';
 import HeroSlider from '@/components/HeroSlider';
 import NarrativeSection from '@/components/NarrativeSection';
+import TrustedBySection from '@/components/TrustedBySection';
 import ProblemSolutionSection from '@/components/ProblemSolutionSection';
 import SpecificationsSection from '@/components/SpecificationsSection';
 import InteractiveDemoSection from '@/components/InteractiveDemoSection';
@@ -19,6 +20,7 @@ const Index = () => {
         <NarrativeSection />
         <ProblemSolutionSection />
         <SpecificationsSection />
+        <TrustedBySection />
         <InteractiveDemoSection />
         <AutoGallerySection />
         <ProductCompareSection />

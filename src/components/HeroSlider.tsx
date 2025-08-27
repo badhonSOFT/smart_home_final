@@ -9,16 +9,16 @@ const slides = [
     id: 1,
     video: '/videos/Slide Curtain .mp4',
     image: heroSlidingImage, // Fallback image
-    headline: "Glide Into Effortless Living.",
-    subtitle: "Smart motion, whisper-quiet performance, and control from anywhere.",
+    headline: "Every Home. A Smart Home.",
+    subtitle: "Transform your home into a world of safety, comfort, and effortless control.",
     alt: "Smart curtain demonstration video"
   },
   {
     id: 2,
     video: '/videos/Roller Curtain.mp4',
     image: heroRollerImage, // Fallback image
-    headline: "Minimal Design. Maximum Control.",
-    subtitle: "A clean, modern roll engineered for precision and comfort.",
+    headline: "Every Home. A Smart Home.",
+    subtitle: "Transform your home into a world of safety, comfort, and effortless control.",
     alt: "Roller curtain demonstration video"
   }
 ];
@@ -115,8 +115,8 @@ const HeroSlider = () => {
                 />
               )}
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-white/20" />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-white/20 to-white/10" />
+              <div className="absolute inset-0 bg-white/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-white/10 to-white/5" />
             </div>
           </div>
         ))}
@@ -134,13 +134,13 @@ const HeroSlider = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center fade-in-delay px-4">
               <Button onClick={scrollToOrder} className="btn-cta w-full sm:w-auto text-sm md:text-base py-2 md:py-3 px-4 md:px-6">
-                Buy Now
+                Build Your Smart Home
               </Button>
               <Button 
                 onClick={() => document.getElementById('specs')?.scrollIntoView({ behavior: 'smooth' })}
                 className="btn-cta w-full sm:w-auto text-sm md:text-base py-2 md:py-3 px-4 md:px-6"
               >
-                View Specs
+                Watch How It Works
               </Button>
             </div>
             {/* Built for Comfort Badge */}

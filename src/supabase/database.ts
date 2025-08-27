@@ -34,10 +34,12 @@ export const orderService = {
   },
 
   async updateOrderStatus(id: string, status: string) {
+    // Sanitize ID to prevent injection
+    const sanitizedId = id.replace(/[^a-zA-Z0-9-]/g, '');
     const { data, error } = await supabase
       .from('orders')
       .update({ status })
-      .eq('id', id)
+      .eq('id', sanitizedId)
       .select()
       .single()
     

@@ -2,15 +2,12 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Heart, Star, ArrowLeft } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Minus, Plus, Heart, Star, ArrowLeft, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
 import { EngravingTrigger } from '@/components/ui/EngravingTrigger';
 import { EngravingModal } from '@/components/ui/EngravingModal';
-
-type Image = { id: string; src: string; alt: string };
-type LengthOption = { id: string; label: string; meters: number; inches: number; inStock: boolean };
-type ShipFrom = { id: string; label: string };
 
 interface BuyNowModalProps {
   open: boolean;
@@ -66,6 +63,14 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
         title: "Added to Cart",
         description: `${product.name} has been added to your cart.`,
       });
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Add to cart failed:', JSON.stringify(error, null, 2));
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -80,6 +85,13 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
         engravingText: engravingText || undefined
       });
       onOpenChange(false);
+    } catch (error) {
+      console.error('Buy now failed:', JSON.stringify(error, null, 2));
+      toast({
+        title: "Error",
+        description: "Failed to process purchase. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -108,20 +120,10 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
             </Button>
           </div>
           {/* Left: Images */}
-          <div className="space-y-4">
-            <div className="aspect-square w-full max-w-md mx-auto rounded-lg overflow-hidden bg-gray-100">
-              <img
-                src={allImages[selectedImage] || '/images/smart_switch/3 gang mechanical.webp'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/images/smart_switch/3 gang mechanical.webp';
-                }}
-              />
-            </div>
+          <div className="flex gap-4">
+            {/* Thumbnail Column */}
             {allImages.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto justify-center">
+              <div className="flex flex-col gap-2 w-20">
                 {allImages.map((image, index) => (
                   <button
                     key={index}
@@ -144,26 +146,40 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
                 ))}
               </div>
             )}
+            
+            {/* Main Image */}
+            <div className="flex-1">
+              <div className="aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={allImages[selectedImage] || '/images/smart_switch/3 gang mechanical.webp'}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/smart_switch/3 gang mechanical.webp';
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Right: Details */}
           <div className="space-y-4">
-            {/* Category & Title */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-gray-600">{product.category}</span>
-                {product.stock <= 3 && product.stock > 0 && (
-                  <Badge variant="secondary" className="text-xs">Low Stock</Badge>
-                )}
-                {product.stock === 0 && (
-                  <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
-                )}
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">{product.name}</h2>
-              {product.description && (
-                <p className="text-sm text-gray-500 mb-2">{product.description}</p>
+            {/* Category */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-medium text-gray-600">{product.category}</span>
+              {product.stock <= 3 && product.stock > 0 && (
+                <Badge variant="secondary" className="text-xs">Low Stock</Badge>
+              )}
+              {product.stock === 0 && (
+                <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
               )}
             </div>
+
+            {/* Product Name */}
+            <h1 className="text-xl font-semibold text-gray-900 mb-4">
+              {product.name}
+            </h1>
 
             {/* Price */}
             <div className="text-2xl font-bold text-gray-900">
@@ -175,52 +191,75 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
               )}
             </div>
 
-            {/* Detailed Description */}
-            {product.detailed_description && (
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Description</h3>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{product.detailed_description}</p>
-              </div>
-            )}
+            {/* Product Details Accordion */}
+            <Accordion type="multiple" defaultValue={["description"]} className="w-full">
+              {/* Description */}
+              {(product.description || product.detailed_description) && (
+                <AccordionItem value="description" className="border rounded-lg px-4 mb-2">
+                  <AccordionTrigger className="text-left font-medium text-gray-900 hover:no-underline">
+                    Description
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-gray-700 whitespace-pre-line pb-4">
+                    {product.description && (
+                      <p className="mb-3">{product.description}</p>
+                    )}
+                    {product.detailed_description && (
+                      <div>{product.detailed_description}</div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-            {/* Features */}
-            {features.length > 0 && (
-              <div>
-                <h3 className="font-medium text-gray-900 mb-2">Features</h3>
-                <ul className="space-y-1">
-                  {features.map((feature, index) => (
-                    <li key={index} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {/* Features */}
+              {features.length > 0 && (
+                <AccordionItem value="features" className="border rounded-lg px-4 mt-2">
+                  <AccordionTrigger className="text-left font-medium text-gray-900 hover:no-underline">
+                    Features
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <ul className="space-y-2">
+                      {features.map((feature, index) => (
+                        <li key={index} className="text-sm text-gray-700 flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-            {/* Specifications */}
-            {specifications.length > 0 && (
-              <div>
-                <h3 className="font-medium text-gray-900 mb-2">Specifications</h3>
-                <div className="text-sm text-gray-700 space-y-1">
-                  {specifications.map((spec, index) => (
-                    <div key={index}>{spec}</div>
-                  ))}
-                </div>
-              </div>
-            )}
+              {/* Specifications */}
+              {specifications.length > 0 && (
+                <AccordionItem value="specifications" className="border rounded-lg px-4 mt-2">
+                  <AccordionTrigger className="text-left font-medium text-gray-900 hover:no-underline">
+                    Specifications
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <div className="text-sm text-gray-700 space-y-2">
+                      {specifications.map((spec, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                          {spec}
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
 
             {/* Warranty & Installation */}
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {product.warranty && (
-                <div className="flex-1 p-3 bg-blue-50 rounded-lg">
-                  <div className="text-sm font-medium text-blue-900">Warranty</div>
+                <div className="flex-1 p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                  <div className="text-sm font-semibold text-blue-900">Warranty</div>
                   <div className="text-sm text-blue-700">{product.warranty}</div>
                 </div>
               )}
               {product.installation_included && (
-                <div className="flex-1 p-3 bg-green-50 rounded-lg">
-                  <div className="text-sm font-medium text-green-900">Installation</div>
+                <div className="flex-1 p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+                  <div className="text-sm font-semibold text-green-900">Installation</div>
                   <div className="text-sm text-green-700">Included</div>
                 </div>
               )}
@@ -246,24 +285,7 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
               </div>
             </div>
 
-            {/* Stock Info */}
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm">
-                <span className="font-medium">STOCK: </span>
-                <span className={cn(
-                  "font-semibold",
-                  product.stock === 0 ? "text-red-600" : 
-                  product.stock <= 3 ? "text-orange-600" : "text-green-600"
-                )}>
-                  {product.stock === 0 ? 'Out of Stock' : 
-                   product.stock <= 3 ? `Only ${product.stock} left` : 'In Stock'}
-                </span>
-              </div>
-              <div className="text-xs text-gray-600 mt-1">
-                <div>Free delivery within Dhaka</div>
-                <div>Estimated Delivery: 1-3 business days</div>
-              </div>
-            </div>
+
 
             {/* Actions */}
             <div className="space-y-3 pt-4 sticky bottom-0 bg-white border-t mt-6 -mx-6 px-6 py-4">
@@ -276,33 +298,14 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
                 />
               )}
               
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleAddToCart}
-                  disabled={loading || product.stock === 0}
-                  className="flex-1"
-                >
-                  {product.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
-                </Button>
-                <Button
-                  onClick={handleBuyNow}
-                  disabled={loading || product.stock === 0}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
-                >
-                  {product.stock === 0 ? 'OUT OF STOCK' : 'BUY NOW'}
-                </Button>
-              </div>
-              
-              {onToggleFavorite && (
-                <button
-                  onClick={onToggleFavorite}
-                  className="flex items-center justify-center gap-2 w-full py-2 text-sm text-gray-600 hover:text-gray-900"
-                >
-                  <Heart className="w-4 h-4" />
-                  Add to Favorites
-                </button>
-              )}
+              <Button
+                variant="outline"
+                onClick={handleAddToCart}
+                disabled={loading || product.stock === 0}
+                className="w-full"
+              >
+                {product.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
+              </Button>
             </div>
             
             {/* Engraving Modal - Show only if available */}
@@ -317,10 +320,6 @@ export function BuyNowModal({ open, onOpenChange, product, onAddToCart, onBuyNow
                 initialText={engravingText}
                 onSave={({ text }) => {
                   setEngravingText(text);
-                  toast({
-                    title: "Engraving Saved",
-                    description: text ? `Engraving "${text}" added to product.` : "Engraving removed.",
-                  });
                 }}
               />
             )}
