@@ -109,10 +109,14 @@ const StatusFilters = ({ activeStatus, setActiveStatus, orders }: any) => {
   );
 };
 
-const Toolbar = ({ orders }: any) => (
+const Toolbar = ({ orders, onRefresh }: any) => (
   <div className="flex items-center justify-between mb-6">
     <h2 className="text-xl font-semibold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">All Orders ({orders.length})</h2>
     <div className="flex items-center gap-4">
+      <Button variant="outline" size="sm" className="rounded-lg" onClick={onRefresh}>
+        <Package className="w-4 h-4 mr-2" />
+        Refresh
+      </Button>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="rounded-lg">
           <Download className="w-4 h-4 mr-2" />
@@ -289,6 +293,9 @@ const AdminOrders = () => {
 
   useEffect(() => {
     loadOrders();
+    // Auto-refresh orders every 30 seconds
+    const interval = setInterval(loadOrders, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadOrders = async () => {
@@ -375,7 +382,7 @@ const AdminOrders = () => {
         
         <CategoryTabs activeTab={activeTab} setActiveTab={setActiveTab} orders={orders} />
         <StatusFilters activeStatus={activeStatus} setActiveStatus={setActiveStatus} orders={orders} />
-        <Toolbar orders={filteredOrders} />
+        <Toolbar orders={filteredOrders} onRefresh={loadOrders} />
         
         <div className="space-y-6">
           {filteredOrders.length > 0 ? filteredOrders.map(order => (
@@ -450,18 +457,30 @@ const AdminOrders = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-4">Order Items</h3>
                 <div className="space-y-3">
-                  {selectedOrder.items?.map((item: any, idx: number) => (
+                  {selectedOrder.items && selectedOrder.items.length > 0 ? selectedOrder.items.map((item: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-lg border">
-                      <div>
-                        <p className="font-medium">{item.product_name}</p>
-                        <p className="text-sm text-slate-600">Category: {item.category}</p>
+                      <div className="flex-1">
+                        <p className="font-medium">{item.product_name || 'Product Name'}</p>
+                        <p className="text-sm text-slate-600">Category: {item.category || 'N/A'}</p>
+                        {item.specifications && (
+                          <div className="text-xs text-slate-500 mt-1">
+                            {Object.entries(item.specifications).map(([key, value]: [string, any]) => (
+                              <span key={key} className="mr-2">{key}: {value}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">৳{item.price?.toLocaleString()}</p>
-                        <p className="text-sm text-slate-600">Qty: {item.quantity}</p>
+                        <p className="font-medium">৳{(item.price || 0).toLocaleString()}</p>
+                        <p className="text-sm text-slate-600">Qty: {item.quantity || 1}</p>
                       </div>
                     </div>
-                  )) || <p>No items found</p>}
+                  )) : (
+                    <div className="text-center py-8 text-slate-500">
+                      <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No items in this order</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

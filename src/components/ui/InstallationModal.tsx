@@ -141,7 +141,11 @@ export function InstallationModal({ open, onOpenChange, onBack, onAddToCart }: I
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddToCart} disabled={selectedServices.length === 0}>
+            <Button 
+              onClick={handleAddToCart} 
+              disabled={selectedServices.length === 0}
+              className="border-2 border-black bg-black text-white hover:bg-gray-900 hover:border-gray-900 hover:shadow-lg transition-all duration-300"
+            >
               Add to Cart ({selectedServices.length})
             </Button>
           </div>

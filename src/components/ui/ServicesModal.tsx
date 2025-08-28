@@ -115,50 +115,54 @@ export function ServicesModal({ open, onOpenChange, onBack, onAddToCart }: Servi
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
-            <DialogTitle>Select Consultancy Services</DialogTitle>
+            <DialogTitle>Consultancy & Installation Services</DialogTitle>
           </div>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <p className="text-sm text-gray-600">Choose the consultancy services you need:</p>
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">We don't just sell devices. We build solutions.</h3>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {consultancyServices.map((service) => (
-              <div
-                key={service.id}
-                onClick={() => toggleService(service.id)}
-                className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedServices.includes(service.id)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-sm">{service.name}</h4>
-                      <Badge variant={service.price === 0 ? 'secondary' : 'default'}>
-                        {service.price === 0 ? 'Free' : `৳${service.price}`}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">{service.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-2">Free Consultation</h4>
+              <p className="text-sm text-blue-800">Book a SOHUB Smart Home expert.</p>
+            </div>
+            <div className="p-4 bg-green-50 rounded-lg">
+              <h4 className="font-semibold text-green-900 mb-2">On-Site Assessment</h4>
+              <p className="text-sm text-green-800">Engineers visit and suggest the perfect setup.</p>
+            </div>
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h4 className="font-semibold text-purple-900 mb-2">Installation & Setup</h4>
+              <p className="text-sm text-purple-800">Seamless, professional installation with full testing.</p>
+            </div>
+            <div className="p-4 bg-orange-50 rounded-lg">
+              <h4 className="font-semibold text-orange-900 mb-2">After-Sales Support</h4>
+              <p className="text-sm text-orange-800">24/7 service, warranty, and remote troubleshooting.</p>
+            </div>
           </div>
+          
+
         </div>
-        <div className="flex justify-between items-center pt-4 border-t">
-          <div className="text-sm text-gray-600">
-            {selectedServices.length} service(s) selected
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddToCart} disabled={selectedServices.length === 0}>
-              Add to Cart ({selectedServices.length})
-            </Button>
-          </div>
+        <div className="flex justify-center pt-4 border-t">
+          <Button 
+            onClick={() => {
+              const cartItem = {
+                id: 'free-consultation',
+                name: 'Free Consultation',
+                price: 0,
+                category: 'Services',
+                image: '/images/services/services.png',
+                color: 'Free',
+                quantity: 1
+              };
+              onAddToCart(cartItem);
+              onOpenChange(false);
+            }}
+            className="border-2 border-black bg-black text-white hover:bg-gray-900 hover:border-gray-900 hover:shadow-lg transition-all duration-300 px-8 py-3"
+          >
+            Book My Free Consultation →
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

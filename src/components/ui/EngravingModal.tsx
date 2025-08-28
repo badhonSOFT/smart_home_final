@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
 import { validateEngraving } from '@/hooks/useEngraving';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface EngravingModalProps {
   open: boolean;
@@ -14,15 +15,17 @@ interface EngravingModalProps {
   productName?: string;
   engravingTextColor?: string;
   initialText?: string;
+  currentQuantity?: number;
   onSave: (value: { text: string }) => Promise<void> | void;
 }
 
 const EMOJI_GRID = ['★', '♥', '✿', '✓', '☺', '☹', '#', '+', '×', '!', '?', '&', '@', '♪', '♫', '☀', '☽', '♠', '♣', '♦', '♧', '⚡', '✨', '🎉'];
 
-export function EngravingModal({ open, onOpenChange, productImage, engravingImage, productName = 'Product', engravingTextColor = '#000000', initialText = '', onSave }: EngravingModalProps) {
+export function EngravingModal({ open, onOpenChange, productImage, engravingImage, productName = 'Product', engravingTextColor = '#000000', initialText = '', currentQuantity = 1, onSave }: EngravingModalProps) {
   const [text, setText] = useState(initialText);
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [showMinOrderAlert, setShowMinOrderAlert] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validation = validateEngraving(text);
@@ -52,6 +55,12 @@ export function EngravingModal({ open, onOpenChange, productImage, engravingImag
 
   const handleSave = async () => {
     if (!isValid) return;
+    
+    // Check minimum order requirement for switches
+    if (productName.toLowerCase().includes('switch') && currentQuantity < 10) {
+      setShowMinOrderAlert(true);
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -166,6 +175,38 @@ export function EngravingModal({ open, onOpenChange, productImage, engravingImag
         </div>
         </DialogPrimitive.Content>
       </DialogPortal>
+      
+      {/* Minimum Order Alert */}
+      <AlertDialog open={showMinOrderAlert} onOpenChange={setShowMinOrderAlert}>
+        <div className="fixed inset-0 z-[65] bg-black/60" />
+        <AlertDialogContent className="max-w-md fixed left-[50%] top-[50%] z-[70] translate-x-[-50%] translate-y-[-50%]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+              Minimum Order Required
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 space-y-3">
+              <p>
+                To ensure the highest quality customization, we require a minimum order of <strong>10 switches</strong> for engraving services.
+              </p>
+              <p>
+                This allows us to maintain our professional standards and provide you with the best possible results.
+              </p>
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <strong>Current quantity:</strong> {currentQuantity} switch{currentQuantity !== 1 ? 'es' : ''}<br/>
+                  <strong>Required:</strong> 10 switches minimum
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>I Understand</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onOpenChange(false)}>
+              Adjust Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

@@ -59,38 +59,9 @@ const AdminProducts = () => {
     engraving_image: ''
   });
   const [showCategoryImages, setShowCategoryImages] = useState(false);
-  const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
-  const [selectedCategoryForImage, setSelectedCategoryForImage] = useState('Smart Switch');
-  const [categoryImagePreview, setCategoryImagePreview] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
   const [dbCategoryImages, setDbCategoryImages] = useState<any[]>([]);
 
-  const categoryImages = {
-    'Smart Switch': [
-      '/images/smart_switch/one gang.webp',
-      '/images/smart_switch/3 gang mechanical.webp',
-      '/images/smart_switch/3 gang mechanical fan.webp',
-      '/images/smart_switch/4 gang touch light.webp',
-      '/images/smart_switch/fan touch switch.webp'
-    ],
-    'Smart Curtain': [
-      '/assets/hero-sliding-curtain.jpg',
-      '/assets/hero-roller-curtain.jpg',
-      '/assets/specification/slider_product.webp',
-      '/assets/specification/roller_product.webp'
-    ],
-    'Security': [
-      '/assets/gallery-1.jpg',
-      '/assets/gallery-2.jpg',
-      '/assets/gallery-3.jpg',
-      '/assets/gallery-4.jpg'
-    ],
-    'PDLC Film': [
-      '/assets/window.jpeg',
-      '/assets/gallery-5.jpg',
-      '/assets/gallery-6.jpg'
-    ]
-  };
+  // Removed hardcoded category images - will use database images only
 
   const categories = ['All', 'Smart Switch', 'Smart Curtain', 'Security', 'PDLC Film'];
 
@@ -226,41 +197,7 @@ const AdminProducts = () => {
     }
   };
 
-  const handleCategoryImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCategoryImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setCategoryImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
 
-  const handleFileSelect = (file: File) => {
-    setCategoryImageFile(file);
-    const reader = new FileReader();
-    reader.onload = () => setCategoryImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = e.dataTransfer.files;
-    if (files[0] && files[0].type.startsWith('image/')) {
-      handleFileSelect(files[0]);
-    }
-  };
 
   const createStorageBucket = async () => {
     try {
@@ -277,79 +214,7 @@ const AdminProducts = () => {
     }
   };
 
-  const handleAddCategoryImage = async () => {
-    if (!categoryImageFile) {
-      toast({
-        title: "Error",
-        description: "Please select an image file.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      // Try to create bucket first
-      await createStorageBucket();
-      
-      // Upload file
-      const fileExt = categoryImageFile.name.split('.').pop();
-      const fileName = `category-${Date.now()}.${fileExt}`;
-      const filePath = `categories/${fileName}`;
-      
-      const { data, error } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, categoryImageFile, {
-          cacheControl: '3600',
-          upsert: true
-        });
-      
-      if (error) throw error;
-      
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-      
-      // Save to database
-      await categoryService.addCategoryImage({
-        category: selectedCategoryForImage,
-        image_url: publicUrl,
-        is_active: true
-      });
-      
-      toast({
-        title: "Success",
-        description: "Category image uploaded successfully.",
-      });
-      
-      setCategoryImageFile(null);
-      setCategoryImagePreview('');
-      loadCategoryImages(); // Reload to show new image
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast({
-        title: "Error",
-        description: `Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
-    }
-  };
 
-  const handleDeleteCategoryImage = async (id: string) => {
-    try {
-      await executeQuery(() => categoryService.deleteCategoryImage(id));
-      toast({
-        title: "Success",
-        description: "Category image deleted successfully.",
-      });
-      loadCategoryImages();
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to delete image.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const getCategoryImagesByCategory = (category: string) => {
     return dbCategoryImages.filter(img => img.category === category);
@@ -409,6 +274,7 @@ const AdminProducts = () => {
       });
       
       setIsEditDialogOpen(false);
+      setEditingProduct(null);
       setImageFile(null);
       setImagePreview('');
       setImageFiles({
@@ -425,7 +291,8 @@ const AdminProducts = () => {
         image5: '',
         engraving_image: ''
       });
-      loadProducts();
+      setShowCategoryImages(false);
+      await loadProducts();
     } catch (err) {
       toast({
         title: "Error",
@@ -504,12 +371,27 @@ const AdminProducts = () => {
       setIsAddDialogOpen(false);
       setFormData({ 
         name: '', category: '', price: '', stock: '', description: '', image: '', image2: '', image3: '', image4: '', image5: '', engraving_image: '',
-        detailed_description: '', features: '', specifications: '', engraving_available: false,
+        engraving_text_color: '#000000', detailed_description: '', features: '', specifications: '', engraving_available: false,
         engraving_price: '', warranty: '', installation_included: false
       });
       setImageFile(null);
       setImagePreview('');
-      loadProducts();
+      setImageFiles({
+        image2: null,
+        image3: null,
+        image4: null,
+        image5: null,
+        engraving_image: null
+      });
+      setImagePreviews({
+        image2: '',
+        image3: '',
+        image4: '',
+        image5: '',
+        engraving_image: ''
+      });
+      setShowCategoryImages(false);
+      await loadProducts();
     } catch (err) {
       console.error('Add product error:', err);
       toast({
@@ -777,7 +659,7 @@ const AdminProducts = () => {
                     <Label htmlFor="image">Product Image</Label>
                     <div className="flex gap-2">
                       <Input 
-                        placeholder="Image URL" 
+                        placeholder="Enter image URL here" 
                         value={formData.image}
                         onChange={(e) => {
                           setFormData({...formData, image: e.target.value});
@@ -789,26 +671,32 @@ const AdminProducts = () => {
                         type="button" 
                         variant="outline" 
                         onClick={() => setShowCategoryImages(!showCategoryImages)}
-                        disabled={!formData.category}
+                        disabled={!formData.category || getCategoryImagesByCategory(formData.category).length === 0}
                       >
                         Gallery
                       </Button>
                     </div>
-                    {showCategoryImages && formData.category && categoryImages[formData.category as keyof typeof categoryImages] && (
-                      <div className="grid grid-cols-4 gap-2 p-2 border rounded">
-                        {categoryImages[formData.category as keyof typeof categoryImages].map((imgUrl, index) => (
-                          <img 
-                            key={index}
-                            src={imgUrl} 
-                            alt={`${formData.category} ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-500"
-                            onClick={() => {
-                              setFormData({...formData, image: imgUrl});
-                              setImagePreview(imgUrl);
-                              setShowCategoryImages(false);
-                            }}
-                          />
-                        ))}
+                    {showCategoryImages && formData.category && (
+                      <div className="grid grid-cols-4 gap-2 p-2 border rounded max-h-48 overflow-y-auto">
+                        {getCategoryImagesByCategory(formData.category).length > 0 ? (
+                          getCategoryImagesByCategory(formData.category).map((img: any, index: number) => (
+                            <img 
+                              key={index}
+                              src={img.image_url} 
+                              alt={`${formData.category} ${index + 1}`}
+                              className="w-16 h-16 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-500"
+                              onClick={() => {
+                                setFormData({...formData, image: img.image_url});
+                                setImagePreview(img.image_url);
+                                setShowCategoryImages(false);
+                              }}
+                            />
+                          ))
+                        ) : (
+                          <div className="col-span-4 text-center py-4 text-gray-500">
+                            No images available for this category
+                          </div>
+                        )}
                       </div>
                     )}
                     {imagePreview && (
@@ -940,12 +828,12 @@ const AdminProducts = () => {
                   <TableCell>
                     <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 rounded-xl overflow-hidden shadow-sm">
                       <img 
-                        src={product.image || '/images/smart_switch/3 gang mechanical.webp'} 
+                        src={product.image || 'https://via.placeholder.com/150x150?text=No+Image'} 
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/smart_switch/3 gang mechanical.webp';
+                          target.src = 'https://via.placeholder.com/150x150?text=No+Image';
                         }}
                       />
                     </div>

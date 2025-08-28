@@ -122,7 +122,7 @@ const Navigation = () => {
             onClick={() => handleNavigation('order')}
             className="hidden md:block px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
           >
-            Build/Buy Now
+            Build / Buy Now
           </Button>
 
           {/* Mobile Menu Button */}
@@ -177,7 +177,7 @@ const Navigation = () => {
                 onClick={() => handleNavigation('order')}
                 className="w-full mt-4 px-6 py-2 rounded-lg font-semibold bg-[#0A1D3A] text-white hover:bg-[#0C2347] transition-all"
               >
-                Build/Buy Now
+                Build / Buy Now
               </Button>
             </div>
           </div>

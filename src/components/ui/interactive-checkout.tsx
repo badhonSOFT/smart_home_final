@@ -32,6 +32,11 @@ interface Product {
 
 interface CartItem extends Product {
     quantity: number;
+    trackSize?: number;
+    trackSizes?: number[];
+    height?: number;
+    width?: number;
+    installationCharge?: number;
 }
 
 interface InteractiveCheckoutProps {
@@ -141,7 +146,7 @@ function InteractiveCheckout({
         'Smart Curtain': '1',
         'Smart Switch': '2',
         'Security': '3',
-        'PDLC Film': '3'
+        'PDLC Film': '4'
     };
 
     const calculateItemPrice = (selectedVariant: any, payload: any, dbProducts: any[]) => {
@@ -197,7 +202,9 @@ function InteractiveCheckout({
                     product_name: item.name,
                     quantity: item.quantity,
                     price: item.price,
-                    category: item.category
+                    category: item.category,
+                    track_size: item.trackSize,
+                    track_sizes: item.trackSizes
                 })),
                 total_amount: totalPrice,
                 payment_method: totalPrice > 0 ? paymentMethod : 'free'
@@ -271,14 +278,6 @@ function InteractiveCheckout({
                     gangType: 'Consultancy',
                     imageUrl: '/images/services/services.png',
                     isSoldOut: false
-                },
-                {
-                    id: 'service-2',
-                    name: 'Installation Services',
-                    price: 'Starting from ৳800',
-                    gangType: 'Installation',
-                    imageUrl: '/images/services/repair.png',
-                    isSoldOut: false
                 }
             ];
         }
@@ -309,6 +308,13 @@ function InteractiveCheckout({
 
     const addToCart = (product: Product | CartItem) => {
         setCart((currentCart) => {
+            // For PDLC Film and Smart Curtain, always add as new item with unique ID
+            if (product.category === 'PDLC Film' || product.category === 'Film' || product.category === 'Smart Curtain') {
+                const uniqueId = `${product.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                return [...currentCart, { ...product, id: uniqueId, quantity: 'quantity' in product ? product.quantity : 1 }];
+            }
+            
+            // For other products, check for existing items
             const existingItem = currentCart.find(
                 (item) => item.id === product.id
             );
@@ -336,9 +342,19 @@ function InteractiveCheckout({
             currentCart.map((item) => {
                 if (item.id === productId) {
                     const newQuantity = item.quantity + delta;
-                    return newQuantity > 0
-                        ? { ...item, quantity: newQuantity }
-                        : item;
+                    if (newQuantity > 0) {
+                        // For items with installation, recalculate price based on new quantity
+                        if (item.installationCharge && (item.category === 'Smart Switch' || item.category === 'Smart Curtain')) {
+                            const basePrice = item.category === 'Smart Switch' ? 
+                                (item.price - item.installationCharge) / item.quantity :
+                                item.category === 'Smart Curtain' && item.trackSizes ? 
+                                (item.price - item.installationCharge) / item.quantity : item.price / item.quantity;
+                            const newPrice = (basePrice * newQuantity) + item.installationCharge;
+                            return { ...item, quantity: newQuantity, price: newPrice };
+                        }
+                        return { ...item, quantity: newQuantity };
+                    }
+                    return item;
                 }
                 return item;
             })
@@ -347,7 +363,13 @@ function InteractiveCheckout({
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) => {
+            // For items with pre-calculated totals (Smart Curtains with tracks or Smart Switches with installation)
+            if ((item.category === 'Smart Curtain' && item.trackSizes) || (item.category === 'Smart Switch' && item.installationCharge)) {
+                return sum + item.price;
+            }
+            return sum + item.price * item.quantity;
+        },
         0
     );
 
@@ -424,11 +446,11 @@ function InteractiveCheckout({
 
     return (
         <>
-            <div className="w-full max-w-7xl mx-auto min-h-screen flex flex-col lg:flex-row gap-2 lg:gap-6 bg-gradient-to-br from-gray-50 to-white rounded-none lg:rounded-2xl overflow-hidden">
+            <div className="w-full max-w-7xl mx-auto min-h-screen flex flex-col lg:flex-row gap-2 lg:gap-6 bg-white rounded-none lg:rounded-2xl overflow-hidden">
             {/* Left Side - Scrollable Products */}
             <div className="flex-1 overflow-y-auto products-scroll-container h-[60vh] lg:h-[calc(100vh-200px)] min-h-[400px]">
                 {/* Category Tabs */}
-                <div className="mb-4 lg:mb-6 sticky top-[80px] lg:top-0 bg-white z-40 pb-3 lg:pb-4 pt-1 lg:pt-2 shadow-sm lg:shadow-none">
+                <div className="mb-4 lg:mb-6 sticky top-[80px] lg:top-0 bg-white z-40 pb-3 lg:pb-4 pt-1 lg:pt-2">
                     <div className="grid grid-cols-5 lg:grid-cols-5 gap-1 lg:gap-3 px-3 lg:px-4">
                         {categories.map((category) => (
                             <motion.button
@@ -468,26 +490,24 @@ function InteractiveCheckout({
                                     }, 10);
                                 }}
                                 className={cn(
-                                    "flex flex-col items-center justify-center gap-1 lg:gap-2 p-2 lg:p-4 rounded-lg lg:rounded-xl transition-all duration-300 aspect-square",
+                                    "flex flex-col items-center justify-end rounded-lg lg:rounded-xl transition-all duration-300 aspect-square relative overflow-hidden",
                                     activeCategory === category.category
-                                        ? "bg-blue-100 text-blue-800 border border-blue-200 shadow-md"
-                                        : "bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 hover:shadow-sm"
+                                        ? "bg-white text-blue-800 border-4 border-black"
+                                        : "bg-white hover:bg-white text-gray-700 border border-gray-200"
                                 )}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <div className="w-6 h-6 lg:w-10 lg:h-10 rounded-full overflow-hidden bg-white shadow-sm">
-                                    <img
-                                        src={category.image}
-                                        alt={category.name}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = '/images/smart_switch/3 gang mechanical.webp';
-                                        }}
-                                    />
-                                </div>
-                                <span className="text-[10px] lg:text-xs font-medium text-center leading-tight">
+                                <img
+                                    src={category.image}
+                                    alt={category.name}
+                                    className="absolute inset-0 w-full h-full object-contain p-1"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = '/images/smart_switch/3 gang mechanical.webp';
+                                    }}
+                                />
+                                <span className="text-[10px] lg:text-xs font-bold text-center leading-tight relative z-10 bg-black/70 text-white px-2 py-1 rounded-full mb-1 shadow-sm">
                                     {category.name}
                                 </span>
                             </motion.button>
@@ -542,7 +562,7 @@ function InteractiveCheckout({
                             )}
                             
                             {/* Product Image */}
-                            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-md overflow-hidden group-hover:from-green-50 group-hover:to-green-100 transition-all duration-300 p-1 mb-1">
+                            <div className="flex-1 flex items-center justify-center bg-white rounded-md overflow-hidden transition-all duration-300 p-1 mb-1">
                                 <img
                                     src={product.imageUrl}
                                     alt={product.name}
@@ -814,8 +834,10 @@ function InteractiveCheckout({
                             >
                                 <AnimatePresence initial={false} mode="popLayout">
                                     {cart.length === 0 ? (
-                                        <div className="text-center py-8 text-gray-500">
-                                            <p className="text-sm">Your cart is empty</p>
+                                        <div className="text-center py-12 text-gray-500">
+                                            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                                            <p className="text-sm font-medium">Your cart is empty</p>
+                                            <p className="text-xs text-gray-400 mt-1">Add products to get started</p>
                                         </div>
                                     ) : (
                                         cart.map((item) => (
@@ -830,72 +852,92 @@ function InteractiveCheckout({
                                                     layout: { duration: 0.2 },
                                                 }}
                                                 className={cn(
-                                                    "flex items-center gap-3",
-                                                    "p-2 rounded-lg",
-                                                    "bg-zinc-50 dark:bg-zinc-800/50",
+                                                    "flex items-start gap-3 lg:gap-4",
+                                                    "p-3 lg:p-4 rounded-xl",
+                                                    "bg-white dark:from-zinc-800 dark:to-zinc-800/50",
+                                                    "border border-gray-200 dark:border-zinc-700",
+                                                    "hover:shadow-md transition-all duration-200",
                                                     "mb-3"
                                                 )}
                                             >
+                                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                                    <img
+                                                        src={item.image}
+                                                        alt={item.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = '/images/smart_switch/3 gang mechanical.webp';
+                                                        }}
+                                                    />
+                                                </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
-                                                            {item.name}
-                                                        </span>
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <div className="flex-1 min-w-0 pr-2">
+                                                            <h3 className="text-sm lg:text-base font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                                                                {item.name}
+                                                            </h3>
+                                                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                                                {item.category}
+                                                                {item.trackSize ? ` • ${item.trackSize} ft track` : ''}
+                                                                {item.trackSizes ? ` • ${item.trackSizes.join(', ')} ft tracks` : ''}
+                                                                {item.height && item.width ? ` • ${item.quantity.toFixed(2)} sq ft (${item.height}' × ${item.width}')` : ''}
+                                                            </p>
+
+                                                        </div>
                                                         <motion.button
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.95 }}
-                                                            onClick={() =>
-                                                                removeFromCart(item.id)
-                                                            }
-                                                            className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                                            onClick={() => removeFromCart(item.id)}
+                                                            className="p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
                                                         >
-                                                            <X className="w-3 h-3 text-zinc-400" />
+                                                            <X className="w-4 h-4" />
                                                         </motion.button>
                                                     </div>
-                                                    <div className="flex items-center justify-between mt-1">
-                                                        <div className="flex items-center gap-1">
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.95 }}
-                                                                onClick={() =>
-                                                                    updateQuantity(
-                                                                        item.id,
-                                                                        -1
-                                                                    )
-                                                                }
-                                                                className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                                                            >
-                                                                <Minus className="w-3 h-3" />
-                                                            </motion.button>
-                                                            <motion.span
-                                                                layout
-                                                                className="text-xs text-zinc-600 dark:text-zinc-400 w-4 text-center"
-                                                            >
-                                                                {item.quantity}
-                                                            </motion.span>
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.95 }}
-                                                                onClick={() =>
-                                                                    updateQuantity(
-                                                                        item.id,
-                                                                        1
-                                                                    )
-                                                                }
-                                                                className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                                                            >
-                                                                <Plus className="w-3 h-3" />
-                                                            </motion.button>
+                                                    <div className="flex items-center justify-between">
+                                                        {item.category === 'Services' ? (
+                                                            <div className="text-sm text-gray-600">
+                                                                Consultation Service
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2 bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    onClick={() => updateQuantity(item.id, -1)}
+                                                                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-md bg-white dark:bg-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-500 flex items-center justify-center transition-colors"
+                                                                >
+                                                                    <Minus className="w-3 h-3 lg:w-4 lg:h-4" />
+                                                                </motion.button>
+                                                                <span className="text-sm lg:text-base font-semibold text-zinc-900 dark:text-zinc-100 min-w-[2rem] text-center">
+                                                                    {item.quantity}
+                                                                </span>
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    onClick={() => {
+                                                                        if (item.category === 'Smart Switch' && item.installationCharge && item.quantity >= 3) {
+                                                                            toast({
+                                                                                title: "Installation Limit",
+                                                                                description: "For more than 3 switches, site visit required. Please contact us.",
+                                                                                variant: "destructive",
+                                                                                className: "bg-white border border-red-200 shadow-lg"
+                                                                            });
+                                                                            return;
+                                                                        }
+                                                                        updateQuantity(item.id, 1);
+                                                                    }}
+                                                                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-md bg-white dark:bg-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-500 flex items-center justify-center transition-colors"
+                                                                >
+                                                                    <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
+                                                                </motion.button>
+                                                            </div>
+                                                        )}
+                                                        <div className="text-right">
+                                                            <p className="text-sm lg:text-base font-bold text-zinc-900 dark:text-zinc-100">
+                                                                {item.category === 'Services' ? 'Free' : `৳${(item.category === 'Smart Curtain' && item.trackSizes) || (item.category === 'Smart Switch' && item.installationCharge) ? item.price.toLocaleString() : (item.price * item.quantity).toLocaleString()}`}
+                                                            </p>
                                                         </div>
-                                                        <motion.span
-                                                            layout
-                                                            className="text-xs text-zinc-500 dark:text-zinc-400"
-                                                        >
-                                                            ৳
-                                                            {(
-                                                                item.price * item.quantity
-                                                            ).toLocaleString()}
-                                                        </motion.span>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -912,16 +954,21 @@ function InteractiveCheckout({
                                     "bg-white dark:bg-zinc-900"
                                 )}
                             >
-                                <div className="flex items-center justify-between mb-3">
-                                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                                        Total
-                                    </span>
-                                    <motion.span
-                                        layout
-                                        className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
-                                    >
-                                        ৳<NumberFlow value={totalPrice} />
-                                    </motion.span>
+                                <div className="bg-white rounded-xl p-4 mb-4 border border-gray-200">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                                            Total
+                                        </span>
+                                        <motion.span
+                                            layout
+                                            className="text-xl lg:text-2xl font-bold text-black"
+                                        >
+                                            ৳<NumberFlow value={totalPrice} />
+                                        </motion.span>
+                                    </div>
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                        {totalItems} item{totalItems !== 1 ? 's' : ''} in cart
+                                    </p>
                                 </div>
                                 
                                 <div className="space-y-2">
@@ -929,7 +976,7 @@ function InteractiveCheckout({
                                         <Button 
                                             size="sm" 
                                             variant="outline"
-                                            className="flex-1 gap-2" 
+                                            className="flex-1 gap-2 bg-white border-blue-200 text-blue-700 hover:bg-white hover:border-blue-300" 
                                             disabled={cart.length === 0}
                                             onClick={() => setSaveEmailModalOpen(true)}
                                         >
@@ -939,7 +986,7 @@ function InteractiveCheckout({
                                         <Button 
                                             size="sm" 
                                             variant="outline"
-                                            className="flex-1 gap-2" 
+                                            className="flex-1 gap-2 bg-white border-green-200 text-green-700 hover:bg-white hover:border-green-300" 
                                             disabled={cart.length === 0}
                                             onClick={() => {
                                                 const sanitizeText = (text: string) => text.replace(/[<>&"']/g, (match) => {
@@ -999,7 +1046,7 @@ function InteractiveCheckout({
                                     </div>
                                     <Button 
                                         size="sm" 
-                                        className="w-full gap-2" 
+                                        className="w-full gap-2 border-2 border-black bg-black text-white hover:bg-gray-900 hover:border-gray-900 hover:shadow-lg transition-all duration-300" 
                                         disabled={cart.length === 0}
                                         onClick={() => setShowCheckout(true)}
                                     >
@@ -1024,8 +1071,7 @@ function InteractiveCheckout({
                         }
                     }}
                     product={(() => {
-                        const sanitizedId = selectedVariant.id.replace(/[^a-zA-Z0-9-]/g, '');
-                        const productData = dbProducts.find(p => p.id === sanitizedId);
+                        const productData = dbProducts.find(p => p.id === selectedVariant.id);
                         return {
                             id: selectedVariant.id,
                             name: selectedVariant.name,
@@ -1051,17 +1097,71 @@ function InteractiveCheckout({
                     })()}
                     onAddToCart={async (payload) => {
                         if (selectedVariant) {
-                            const sanitizedVariant = { ...selectedVariant, id: selectedVariant.id.replace(/[^a-zA-Z0-9-]/g, '') };
-                            const { totalPrice } = calculateItemPrice(sanitizedVariant, payload, dbProducts);
-                            const cartItem = createCartItem(sanitizedVariant, payload, totalPrice);
+                            const basePrice = parseInt(selectedVariant.price.replace(/[^0-9]/g, ''), 10) || 0;
+                            const totalPrice = payload.totalPrice || (payload.totalArea ? basePrice * payload.totalArea : basePrice);
+                            
+                            let itemName = selectedVariant.name;
+                            if (payload.transformer) {
+                                itemName += ` + ${payload.transformer.name}`;
+                            }
+                            if (payload.installationCharge && typeof payload.installationCharge === 'number' && payload.installationCharge > 0) {
+                                if (selectedVariant.gangType === 'Smart Switch') {
+                                    itemName += ` + Installation (৳${payload.installationCharge.toLocaleString()})`;
+                                } else if (selectedVariant.gangType === 'Smart Curtain') {
+                                    itemName += ` + Installation (৳${payload.installationCharge.toLocaleString()})`;
+                                } else {
+                                    itemName += ` + Installation`;
+                                }
+                            }
+                            
+                            const cartItem = {
+                                id: selectedVariant.id,
+                                name: itemName,
+                                price: payload.totalPrice ? payload.totalPrice : totalPrice,
+                                category: selectedVariant.gangType || 'Product',
+                                image: selectedVariant.imageUrl,
+                                color: selectedVariant.gangType || 'Default',
+                                quantity: payload.quantity || 1
+                            };
+                            if (payload.trackSizes) {
+                                cartItem.trackSizes = payload.trackSizes;
+                            }
+                            if (payload.height && payload.width) {
+                                cartItem.height = payload.height;
+                                cartItem.width = payload.width;
+                            }
+                            if (payload.transformer) {
+                                cartItem.transformer = payload.transformer;
+                            }
+                            if (payload.installationCharge) {
+                                cartItem.installationCharge = payload.installationCharge;
+                            }
                             addToCart(cartItem);
+                            
+                            // Small delay to ensure each item is processed separately
+                            await new Promise(resolve => setTimeout(resolve, 10));
                         }
                     }}
                     onBuyNow={async (payload) => {
                         if (selectedVariant) {
-                            const sanitizedVariant = { ...selectedVariant, id: selectedVariant.id.replace(/[^a-zA-Z0-9-]/g, '') };
-                            const { totalPrice } = calculateItemPrice(sanitizedVariant, payload, dbProducts);
-                            const cartItem = createCartItem(sanitizedVariant, payload, totalPrice);
+                            const basePrice = parseInt(selectedVariant.price.replace(/[^0-9]/g, ''), 10) || 0;
+                            const totalPrice = payload.totalArea ? basePrice * payload.totalArea : basePrice;
+                            const cartItem = {
+                                id: selectedVariant.id,
+                                name: selectedVariant.name,
+                                price: totalPrice,
+                                category: selectedVariant.gangType || 'Product',
+                                image: selectedVariant.imageUrl,
+                                color: selectedVariant.gangType || 'Default',
+                                quantity: payload.quantity || 1
+                            };
+                            if (payload.trackSizes) {
+                                cartItem.trackSizes = payload.trackSizes;
+                            }
+                            if (payload.height && payload.width) {
+                                cartItem.height = payload.height;
+                                cartItem.width = payload.width;
+                            }
                             
                             setCart([cartItem]);
                             setModalOpen(false);
